@@ -1,0 +1,85 @@
+import { ReactNode, useState, createContext, useEffect } from "react";
+import { SessionResponse, User } from "../state/userState";
+import { pingSessionStatus } from "../hooks/account";
+
+// Define the shape of the context value
+interface UserContextType {
+	user: User;
+	setUser: React.Dispatch<React.SetStateAction<User>>;
+}
+
+export const UserContext = createContext<UserContextType | undefined>(
+	undefined
+);
+
+const UserContextProvider: React.FC<{ children: ReactNode }> = ({
+	children,
+}) => {
+	const [user, setUser] = useState<User>({
+		userName: "",
+		email: "",
+		isActive: false,
+		isLoggedIn: false,
+	});
+	console.log("UserContextProvider");
+	useEffect(() => {
+		const fetchData = async () => {
+			const data: SessionResponse | undefined = await pingSessionStatus();
+			localStorage.clear;
+			if (data != undefined) {
+				setUser({
+					userName: data.userName,
+					email: data.email,
+					isActive: true,
+					isLoggedIn: true,
+				});
+
+				localStorage.setItem("userProfile", JSON.stringify(data));
+				// // Retrieve the JSON object
+				// const storedUser = localStorage.getItem("userProfile");
+
+				// // Parse the JSON string back into an object
+				// const userObject = storedUser ? JSON.parse(storedUser) : null;
+				// console.log(userObject);
+			}
+		};
+		console.log("before fetchData");
+		fetchData();
+		// }
+	}, []);
+
+	// const storedUser = localStorage.getItem("userProfile");
+	// // Parse the JSON string back into an object
+	// const userObject = storedUser ? JSON.parse(storedUser) : null;
+
+	// if (userObject && userObject.lastLoggedIn && userObject.isLoggedIn) {
+	// 	// Convert the stored `lastLoggedIn` string to a Date object
+	// 	const lastLoggedIn = new Date(userObject.lastLoggedIn);
+
+	// 	// Get the current time
+	// 	const now = new Date();
+
+	// 	// Calculate the difference in minutes
+	// 	const timeDifferenceInMinutes =
+	// 		(now.getTime() - lastLoggedIn.getTime()) / 1000 / 60;
+
+	// 	// Check if the difference exceeds 2 minutes
+	// 	if (timeDifferenceInMinutes > 2) {
+	// 		console.log("Session has timed out.", timeDifferenceInMinutes);
+	// 		setUser({
+	// 			userName: "",
+	// 			email: "",
+	// 			isActive: false,
+	// 			isLoggedIn: false,
+	// 		});
+	// 		// Handle timeout (e.g., log out the user, clear the session, etc.)
+	// 	}
+	// }
+	return (
+		<UserContext.Provider value={{ user, setUser }}>
+			{children}
+		</UserContext.Provider>
+	);
+};
+
+export default UserContextProvider;
