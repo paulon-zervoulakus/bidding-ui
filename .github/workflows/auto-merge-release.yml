@@ -37,7 +37,7 @@ jobs:
     - name: Merge release branch into main
       run: |
         git fetch origin ${{ env.RELEASE_BRANCH }}
-        git merge --no-ff ${{ env.RELEASE_BRANCH }} -m "Automated merge of release branch ${{ env.RELEASE_BRANCH }} into main"
+        git merge --no-ff --allow-unrelated-histories ${{ env.RELEASE_BRANCH }} -m "Automated merge of release branch ${{ env.RELEASE_BRANCH }} into main"
         git push origin main
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_PAT }}
