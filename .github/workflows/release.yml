@@ -1,0 +1,18 @@
+name: Enforce Merges to Release Branch
+
+on:
+  pull_request:
+    branches:
+      - release
+
+jobs:
+  enforce-branch-strategy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Ensure PR is from stage branch
+      run: |
+        if [ "${{ github.head_ref }}" != "stage" ]; then
+          echo "Error: Pull requests to the 'release' branch can only be merged from the 'stage' branch.";
+          exit 1;
+        fi
