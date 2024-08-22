@@ -19,6 +19,6 @@ jobs:
         elif [[ "${{ github.head_ref }}" == bugfix/* ]]; then
           echo "Pull request is from a bugfix branch, proceeding.";
         else
-          echo "Error: Pull requests to the 'stage' branch can only be merged from 'features/*' or 'hotfix/*' branches.";
+          echo "Error: Pull requests to the 'stage' branch can only be merged from 'features/*' or 'hotfix/*' or 'bugfix/*' branches.";
           exit 1;
         fi
