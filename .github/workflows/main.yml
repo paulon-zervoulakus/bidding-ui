@@ -1,9 +1,9 @@
-name: Enforce Merges to Release Branch
+name: Enforce Merges to Main Branch
 
 on:
   pull_request:
     branches:
-      - release
+      - main
 
 jobs:
   enforce-branch-strategy:
@@ -13,6 +13,6 @@ jobs:
     - name: Ensure PR is from stage branch
       run: |
         if [ "${{ github.head_ref }}" != "staged" ]; then
-          echo "Error: Pull requests to the 'release' branch can only be merged from the 'staged' branch.";
+          echo "Error: Pull requests to the 'main' branch can only be merged from the 'staged' branch.";
           exit 1;
         fi
