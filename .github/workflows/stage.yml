@@ -12,7 +12,7 @@ jobs:
     steps:
     - name: Ensure PR is from features or hotfix or bugfix branch
       run:  |
-        if [[ "${{ github.head_ref }}" == features/* ]]; then
+        if [[ "${{ github.head_ref }}" == feature/* ]]; then
           echo "Pull request is from a feature branch, proceeding.";
         elif [[ "${{ github.head_ref }}" == hotfix/* ]]; then
           echo "Pull request is from a hotfix branch, proceeding.";
