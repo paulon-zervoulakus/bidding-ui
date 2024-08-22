@@ -1,0 +1,34 @@
+name: Auto Merge Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  merge-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Merge release branch into main
+      run: |
+        # Set up git configuration
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+
+        # Fetch the release branch
+        git fetch origin ${GITHUB_REF##*/}
+
+        # Check out the main branch
+        git checkout main
+        git pull origin main
+
+        # Merge the release branch into main
+        git merge --no-ff ${GITHUB_REF##*/} -m "Automated merge of release branch ${GITHUB_REF##*/} into main"
+
+        # Push the changes
+        git push origin main
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
