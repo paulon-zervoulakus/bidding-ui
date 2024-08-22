@@ -1,0 +1,22 @@
+name: Enforce Merges to Main Branch
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  enforce-branch-strategy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Ensure PR is from release/* branch or release-* tag
+      run: |
+        if [[ "${{ github.head_ref }}" == release/* ]]; then
+          echo "Pull request is from a release branch, proceeding.";
+        elif [[ "${{ github.event.pull_request.head.ref }}" =~ ^release- ]]; then
+          echo "Pull request is from a release tag, proceeding.";
+        else
+          echo "Error: Pull requests to the 'main' branch can only be merged from a 'release/*' branch or a 'release-*' tag.";
+          exit 1;
+        fi
