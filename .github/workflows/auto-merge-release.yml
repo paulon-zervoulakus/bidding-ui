@@ -12,21 +12,29 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Merge release branch into main
+    - name: Set up git
       run: |
-        # Set up git configuration
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
 
+    - name: Determine release branch name
+      id: determine_branch
+      run: |
+        # Extract branch name from the release tag
+        BRANCH_NAME=$(echo "${GITHUB_REF#refs/tags/}")
+        echo "RELEASE_BRANCH=${BRANCH_NAME}" >> $GITHUB_ENV
+
+    - name: Merge release branch into main
+      run: |
         # Fetch the release branch
-        git fetch origin ${GITHUB_REF##*/}
+        git fetch origin ${{ env.RELEASE_BRANCH }}
 
         # Check out the main branch
         git checkout main
         git pull origin main
 
         # Merge the release branch into main
-        git merge --no-ff ${GITHUB_REF##*/} -m "Automated merge of release branch ${GITHUB_REF##*/} into main"
+        git merge --no-ff ${{ env.RELEASE_BRANCH }} -m "Automated merge of release branch ${{ env.RELEASE_BRANCH }} into main"
 
         # Push the changes
         git push origin main
