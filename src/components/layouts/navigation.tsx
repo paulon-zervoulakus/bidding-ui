@@ -67,7 +67,7 @@ export default function Navigation() {
 								aria-current="page"
 								to="/"
 							>
-								Home App
+								Home
 							</Link>
 						</li>
 						<li className="nav-item">
