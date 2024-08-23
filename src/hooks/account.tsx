@@ -44,9 +44,10 @@ export const pingSessionStatus = async (): Promise<
 		if (
 			res.data &&
 			typeof res.data === "object" &&
-			"message" in res.data &&
-			res.data.message == "Token is valid."
+			"status" in res.data &&
+			res.data.status == "token validated"
 		) {
+			console.log(res.data);
 			if ("accountProfile" in res.data) {
 				return {
 					userName: res.data.accountProfile.userName,
@@ -54,9 +55,9 @@ export const pingSessionStatus = async (): Promise<
 					email: res.data.accountProfile.email,
 					role: res.data.accountProfile.role,
 					gender: res.data.accountProfile.gender,
+					lastLoggedIn: res.data.accountProfile.lastLoggedIn,
 					isActive: true,
 					isLoggedIn: true,
-					lastLoggedIn: res.data.accountProfile.lastLoggedIn,
 				};
 			} else {
 				return undefined;
@@ -125,8 +126,8 @@ export const login = async (
 
 	if (response.data && response.status == 200) {
 		setUser({
-			userName: response.data.profile.userName,
-			email: response.data.profile.email,
+			userName: response.data.userName,
+			email: response.data.email,
 			isActive: true,
 			isLoggedIn: true, // Updated to reflect logout
 		});
