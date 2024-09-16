@@ -3,7 +3,6 @@ import connection, {
 	invokeWithCookieCheck,
 } from "../../../hooks/signalRService";
 import * as signalR from "@microsoft/signalr";
-import GetCookie from "../../../helper/account";
 
 interface Message {
 	user: string;
