@@ -1,14 +1,17 @@
 import { useContext } from "react";
 import { UserContext } from "../../context/userContextProvider";
 import { logout as hookLogout } from "../../hooks/account";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Navigation() {
+	const navigate = useNavigate();
 	const context = useContext(UserContext);
 	const logout = () => {
 		if (context) {
 			const { setUser } = context;
 			hookLogout(setUser);
+			console.log("logout navigating to home");
+			navigate("/aboutus");
 		} else {
 			console.log("Unable to logout");
 		}
