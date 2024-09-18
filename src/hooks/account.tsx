@@ -47,7 +47,7 @@ export const pingSessionStatus = async (): Promise<
 			"status" in res.data &&
 			res.data.status == "token validated"
 		) {
-			console.log(res.data);
+			// console.log(res.data);
 			if ("accountProfile" in res.data) {
 				return {
 					userName: res.data.accountProfile.userName,
@@ -154,7 +154,7 @@ export const register = async (
 		}, // Request body
 		{ headers: { "Content-Type": "application/json" } }
 	);
-	console.log("Register : ", response);
+	// console.log("Register : ", response);
 	if (response.data && response.status == 200 && onSuccessRegistration) {
 		onSuccessRegistration();
 	}
