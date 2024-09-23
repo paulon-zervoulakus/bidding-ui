@@ -3,16 +3,6 @@ import * as signalR from "@microsoft/signalr";
 import GetCookie from "../../../helper/account";
 import connection from "../../../hooks/signalRService";
 
-// const connection = new signalR.HubConnectionBuilder()
-// 	.withUrl("http://localhost:5260/subastaHub", {
-// 		accessTokenFactory: () => GetCookie("signalr_token") || "",
-// 		transport:
-// 			signalR.HttpTransportType.WebSockets ||
-// 			signalR.HttpTransportType.LongPolling,
-// 	})
-// 	.configureLogging(signalR.LogLevel.Debug)
-// 	.build();
-
 const HomeIndex: React.FC = () => {
 	const [users, setUsers] = useState<string[]>([]);
 	const [incommingMessages, setIncommingMessages] = useState<
@@ -119,11 +109,14 @@ const HomeIndex: React.FC = () => {
 	return (
 		<main className="flex-grow-1">
 			<div className="container">
-				<h1>Welcome to My App</h1>
+				<h1>Welcome to Lobby</h1>
 				<p>
 					This is the main content area. Add your components and
 					content here.
 				</p>
+				<div className="bg-info" aria-placeholder="Thumbnails">
+Thumbnail
+				</div>
 				<div>
 					<input
 						type="text"
