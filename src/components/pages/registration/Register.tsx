@@ -38,80 +38,79 @@ const RegisterIndex: React.FC = () => {
 	};
 
 	return (
-		<main className="flex-grow-1 p-4">
-			<div className="container w-50">
-				<h1>Register Here</h1>
-				<form onSubmit={handleSubmit}>
-					<div className="mb-3">
-						<label htmlFor="email" className="form-label">
-							Email
-						</label>
-						<input
-							type="email"
-							id="email"
-							className="form-control"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							required
-						/>
-					</div>
-
-					<div className="mb-3">
-						<label htmlFor="password" className="form-label">
-							Password
-						</label>
-						<input
-							type="password"
-							id="password"
-							className="form-control"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							required
-						/>
-					</div>
-
-					<div className="mb-3">
-						<label htmlFor="confirmPassword" className="form-label">
-							Confirm Password
-						</label>
-						<input
-							type="password"
-							id="confirmPassword"
-							className="form-control"
-							value={confirmPassword}
-							onChange={(e) => setConfirmPassword(e.target.value)}
-							required
-						/>
-					</div>
-
-					<div className="mb-3">
-						<label htmlFor="dateOfBirth" className="form-label">
-							Date of Birth
-						</label>
-						<input
-							type="date"
-							id="dateOfBirth"
-							className="form-control"
-							value={dateOfBirth}
-							onChange={(e) => setDateOfBirth(e.target.value)}
-							required
-						/>
-					</div>
-
-					{errors.length > 0 && (
-						<div className="alert alert-danger">
-							<ul>
-								{errors.map((error, index) => (
-									<li key={index}>{error}</li>
-								))}
-							</ul>
+		<main className="flex justify-center">
+			<div className="form-registration">
+				<div className="form-outter">
+					<h3 className="title">Registration</h3>
+					<form onSubmit={handleSubmit}>
+						<div className="field-entry">
+							<label htmlFor="email" >
+								Email
+							</label>
+							<input
+								type="email"
+								id="email"
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+								required
+							/>
 						</div>
-					)}
 
-					<button type="submit" className="btn btn-primary">
-						Register
-					</button>
-				</form>
+						<div className="field-entry">
+							<label htmlFor="password" >
+								Password
+							</label>
+							<input
+								type="password"
+								id="password"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								required
+							/>
+						</div>
+
+						<div className="field-entry">
+							<label htmlFor="confirmPassword">
+								Confirm Password
+							</label>
+							<input
+								type="password"
+								id="confirmPassword"
+								value={confirmPassword}
+								onChange={(e) => setConfirmPassword(e.target.value)}
+								required
+							/>
+						</div>
+
+						<div className="field-entry">
+							<label htmlFor="dateOfBirth" >
+								Date of Birth
+							</label>
+							<input
+								type="date"
+								id="dateOfBirth"
+								value={dateOfBirth}
+								onChange={(e) => setDateOfBirth(e.target.value)}
+								required
+							/>
+						</div>
+
+						{errors.length > 0 && (
+							<div className="alert alert-danger">
+								<ul>
+									{errors.map((error, index) => (
+										<li key={index}>{error}</li>
+									))}
+								</ul>
+							</div>
+						)}
+						<div className="form-controls">
+							<button type="submit" className="w-full bg-blue-600 text-white font-semibold py-2 rounded-md hover:bg-blue-700 transition">
+								Register
+							</button>
+						</div>
+					</form>
+				</div>
 			</div>
 		</main>
 	);
