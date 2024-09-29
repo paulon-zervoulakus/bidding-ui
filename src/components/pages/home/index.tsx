@@ -2,18 +2,10 @@ import React, { useEffect, useState } from "react";
 import * as signalR from "@microsoft/signalr";
 import GetCookie from "../../../helper/account";
 import connection from "../../../hooks/signalRService";
-
-// const connection = new signalR.HubConnectionBuilder()
-// 	.withUrl("http://localhost:5260/subastaHub", {
-// 		accessTokenFactory: () => GetCookie("signalr_token") || "",
-// 		transport:
-// 			signalR.HttpTransportType.WebSockets ||
-// 			signalR.HttpTransportType.LongPolling,
-// 	})
-// 	.configureLogging(signalR.LogLevel.Debug)
-// 	.build();
+import ProductList from "./productList";
 
 const HomeIndex: React.FC = () => {
+
 	const [users, setUsers] = useState<string[]>([]);
 	const [incommingMessages, setIncommingMessages] = useState<
 		{ user: string; message: string }[]
@@ -117,13 +109,16 @@ const HomeIndex: React.FC = () => {
 	};
 
 	return (
-		<main className="flex-grow-1">
-			<div className="container">
-				<h1>Welcome to My App</h1>
+		<main className="flex justify-center">
+			<div className="w-full mt-5">
+				<h1 className="text-3xl">Welcome to Lobby</h1>
 				<p>
 					This is the main content area. Add your components and
 					content here.
 				</p>
+				<div className="bg-gray-200 flex flex-1 container p-6 space-x-4" aria-placeholder="Thumbnails">
+					<ProductList />
+				</div>
 				<div>
 					<input
 						type="text"
@@ -150,6 +145,25 @@ const HomeIndex: React.FC = () => {
 							<li key={index}>{user}</li>
 						))}
 					</ul>
+				</div>
+
+
+
+				<div className="flex flex-1 container mx-auto p-6 space-x-4">
+
+
+					{/* Logged-in Users Sidebar */}
+					{/* <aside className="w-64 bg-white p-4 rounded-lg shadow-md">
+						<h2 className="text-lg font-bold mb-4">Logged-in Users</h2>
+						<ul className="space-y-3">
+							{users.map((user) => (
+							<li key={user.id} className="flex items-center space-x-3">
+								<img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full object-cover"/>
+								<span className="text-gray-700">{user.name}</span>
+							</li>
+							))}
+						</ul>
+					</aside> */}
 				</div>
 			</div>
 		</main>

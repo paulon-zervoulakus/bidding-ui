@@ -1,12 +1,12 @@
 import Footer from "./layouts/footer";
 import Navigation from "./layouts/navigation";
-import { Outlet } from "react-router-dom";
+import Content  from "./layouts/content";
 
 const Layout: React.FC = () => {
 	return (
-		<div className="d-flex flex-column min-vh-100">
+		<div className="w-full min-h-10 bg-gray-50">
 			<Navigation />
-			<Outlet />
+			<Content />
 			<Footer />
 		</div>
 	);
