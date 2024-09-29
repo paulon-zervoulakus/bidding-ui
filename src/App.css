@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    /* FORM INPUTS */
+    .form-login, .form-registration {
+      @apply w-full max-w-md mt-5;
+    }
+    .form-outter {
+      @apply bg-white shadow-md rounded-lg p-6;
+    }
+    .form-outter .title {
+      @apply text-center text-3xl font-semibold mb-4;
+    }
+    .form-outter form .field-entry {
+      @apply mb-4;
+    }
+    .form-outter form .field-entry label {
+      @apply block text-sm font-medium text-gray-700;
+    }
+    .form-outter form .field-entry input {
+      @apply mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500;
+    }
+    .form-outter form .form-controls button[type=submit] {
+      @apply w-full bg-blue-600 text-white font-semibold py-2 rounded-md hover:bg-blue-700 transition;
+    }
+    .form-outter form .form-controls a {
+      @apply block text-center mt-2 bg-gray-200 text-gray-800 py-2 rounded-md hover:bg-gray-300 transition;
+    }
+
+    /* LINKS */
+    .link-primary {
+      @apply text-blue-300 hover:text-blue-500 hover:underline;
+    }
+
+    .link-secondary {
+      @apply border-b border-blue-600 text-blue-300 hover:text-blue-400 font-bold;
+    }
+
+    .link-default {
+      @apply text-gray-600 hover:text-gray-800;
+    }
+
+    .link-disabled {
+      @apply text-gray-400 cursor-not-allowed;
+    }
+
+    .link-danger {
+      @apply text-red-600 hover:text-red-800 font-bold;
+    }
+
+    .link-success {
+      @apply text-green-600 hover:text-green-800 font-bold;
+    }
+  }

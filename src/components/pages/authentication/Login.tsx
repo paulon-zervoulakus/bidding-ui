@@ -43,76 +43,56 @@ const LoginForm: React.FC = () => {
 	};
 
 	return (
-		<main className="flex-grow-1">
-			<div className="container">
-				<div className="row justify-content-center">
-					<div className="col-md-6">
-						<div className="card mt-5">
-							<div className="card-body">
-								<h3 className="card-title text-center mb-4">
-									Login
-								</h3>
-								<form onSubmit={handleSubmit}>
-									<div className="mb-3">
-										<label
-											htmlFor="email"
-											className="form-label"
-										>
-											Email
-										</label>
-										<input
-											type="email"
-											id="email"
-											className="form-control"
-											value={email}
-											onChange={(e) =>
-												setEmail(e.target.value)
-											}
-											required
-										/>
-									</div>
-
-									<div className="mb-3">
-										<label
-											htmlFor="password"
-											className="form-label"
-										>
-											Password
-										</label>
-										<input
-											type="password"
-											id="password"
-											className="form-control"
-											value={password}
-											onChange={(e) =>
-												setPassword(e.target.value)
-											}
-											required
-										/>
-									</div>
-
-									{error && (
-										<div className="alert alert-danger">
-											{error}
-										</div>
-									)}
-
-									<button
-										type="submit"
-										className="btn btn-primary w-50"
-									>
-										Login
-									</button>
-									<Link to="/register" className="btn w-50">
-										Registration
-									</Link>
-								</form>
-							</div>
+		<main className="flex justify-center">
+			<div className="form-login">
+				<div className="form-outter">
+					<h3 className="title">Login</h3>
+					<form onSubmit={handleSubmit}>
+						<div className="field-entry">
+							<label htmlFor="email">
+								Email
+							</label>
+							<input
+								type="email"
+								id="email"
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+								required
+							/>
 						</div>
-					</div>
+
+						<div className="field-entry">
+							<label htmlFor="password">
+								Password
+							</label>
+							<input
+								type="password"
+								id="password"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								required
+							/>
+						</div>
+
+						{error && (
+							<div className="mb-4 text-red-600">
+								{error}
+							</div>
+						)}
+						<div className="form-controls">
+							<button type="submit">
+								Login
+							</button>
+							<Link to="/register">
+								Registration
+							</Link>
+						</div>
+					</form>
 				</div>
 			</div>
 		</main>
+
+
 	);
 };
 

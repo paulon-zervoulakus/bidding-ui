@@ -1,6 +1,6 @@
 const GetCookie = (name: string) => {
 	const value = `; ${document.cookie}`;
-	console.log("Document cookie", value);
+	// console.log("Document cookie", value);
 	const parts = value.split(`; ${name}=`);
 	if (parts.length === 2) {
 		const cookieValue = parts.pop();
