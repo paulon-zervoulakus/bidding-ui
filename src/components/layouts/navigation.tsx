@@ -3,6 +3,7 @@ import { UserContext } from "../../context/userContextProvider";
 import { logout as hookLogout } from "../../hooks/account";
 import { Link, useNavigate } from "react-router-dom";
 
+
 export default function Navigation() {
     const [isOpen, setIsOpen] = useState(false);
 	const navigate = useNavigate();
