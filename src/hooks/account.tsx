@@ -1,6 +1,6 @@
 import axios from "./initAxios";
 import { SessionResponse, User } from "../state/userState";
-import connection from "./signalRService";
+import { StopConnection as SignalRStopConnection } from "./signalRService";
 import * as signalR from "@microsoft/signalr";
 
 export const pingSessionStatus = async (): Promise<
@@ -56,7 +56,9 @@ export const getAuthToken = async (
 	});
 };
 
-export const logout = (setUser: React.Dispatch<React.SetStateAction<User>>) => {
+export const logout = (
+	setUser: React.Dispatch<React.SetStateAction<User>>
+) => {
 	axios
 		.get("/api/Account/logout/", {
 			headers: { "Content-Type": "application/json" },
@@ -73,13 +75,8 @@ export const logout = (setUser: React.Dispatch<React.SetStateAction<User>>) => {
 				});
 				localStorage.removeItem("userProfile");
 				localStorage.clear;
-				if (connection.state === signalR.HubConnectionState.Connected) {
-					connection
-						.stop()
-						.catch((err) => {
-							console.error("Error stopping connection: ", err);
-						});
-				}
+
+				SignalRStopConnection();
 			}
 		})
 		.catch((err) => {

@@ -1,20 +1,16 @@
-import { useEffect, useRef, useState } from "react";
-import connection from "../../../hooks/signalRService";
-import * as signalR from "@microsoft/signalr";
-import GetCookie from "../../../helper/account";
-
-// Define the ConnectedUsersDTO interface
-interface ConnectedUsersDTO {
-    email: string;      // The user's email address
-    fullname: string;   // The user's full name
-    avatarSrc: string;  // The URL of the user's avatar image
-}
+import { useEffect, useState } from "react";
+import  {
+	StartConnection as SignalRStartConnection,
+	StopConnection as SignalRStopConnection,
+	BroadcastSendMessage
+} from "../../../hooks/signalRService";
+import {ConnectedUsersDTO, IncomingMessagesDTO } from "../../../dto/signalr";
 
 const Chatbox: React.FC = () => {
 
 	const [users, setUsers] = useState<ConnectedUsersDTO[]>([]);
 	const [incomingMessages, setIncomingMessages] = useState<
-		{ user: string; message: string }[]
+		IncomingMessagesDTO[]
 	>([]); // State for the list of messages
 	const [message, setMessage] = useState("");
 	const [inputCtrl, setInputCtrl] = useState(true);
@@ -28,107 +24,24 @@ const Chatbox: React.FC = () => {
     },[incomingMessages]);
 
     useEffect(() => {
-		const receiveMessage = () => {
-			connection.on(
-				"ReceiveMessage",
-				(user: string, message: string) => {
-					setIncomingMessages(
-						(prevIncomingMessages) => [
-							...prevIncomingMessages,
-							{ user, message },
-						]
-					);
 
-				}
-			);
-		}
-		const updateOnlineUserList = () => {
-			connection.on(
-				"UpdateOnlineUsersList",
-				(userList: ConnectedUsersDTO[]) => {
-					console.log("UpdateOnlineUsersList: ", userList);
-					setUsers(userList);
-				}
-			);
-		}
-		const startConnection = async () => {
-			if (connection.state === signalR.HubConnectionState.Disconnected) {
-				connection
-					.start()
-					.then(() => {
-						console.log("SignalR Connected..");
-						setUsers([]);
-						setInputCtrl(false);
-						receiveMessage();
-						updateOnlineUserList();
+		SignalRStartConnection(setUsers, setInputCtrl, setIncomingMessages);
 
-					})
-					.catch(() => {
-						setInputCtrl(true);
-						setTimeout(() => startConnection(), 1000);
-					});
-			}
-			return;
-		};
-
-		startConnection();
-
-		window.addEventListener("beforeunload", () => {
-			if (connection.state === signalR.HubConnectionState.Connected) {
-				connection
-					.stop()
-					.then(() =>  console.log("window beforeunload event ===="))
-					.catch((err) => {
-						console.error("Error stopping connection: ", err);
-					});
-					setUsers([]);
-			}
-		});
+		window.addEventListener("beforeunload",	() => SignalRStopConnection(setUsers, setInputCtrl));
 
 		return () => {
-			if (connection.state !== signalR.HubConnectionState.Disconnected) {
-				connection
-					.stop()
-					.then(() => console.log("Init disconnect first ==== "))
-					.catch((err) =>
-						console.error("SignalR Disconnection Error: ", err)
-					);
-				setUsers([]);
-				setInputCtrl(true);
-			}
+			SignalRStopConnection(setUsers, setInputCtrl);
 		};
 	}, []);
 
-
-	const sendMessage = (): Promise<void> => {
-		return new Promise((resolve, reject) => {
-			if (connection.state === signalR.HubConnectionState.Connected) {
-				const token = GetCookie("signalr_token");
-
-				if (token) {
-					connection
-						.invoke("SendMessage", message, token)
-						.then(() => {
-							setMessage("");
-							return  resolve;
-						})
-						.catch((err) => {
-							console.error("Error sending message: ", err);
-							reject(new Error(err));
-						});
-				} else {
-					reject(new Error("Missing token"));
-				}
-			} else {
-				reject(new Error("SignalR token not available"));
-			}
-		});
-	};
+	const sendMessage = async () => {
+		await BroadcastSendMessage(message, setMessage);
+	}
 
     return (
         <div className="flex flex-col sm:flex-row">
             <div className="w-full sm:w-1/2 bg-gray-200 p-4">
-                <h2 className="text-2xl">Online Users</h2>
+                <h2 className="text-2xl">Users in Lobby</h2>
                 <ul className="divide-y divide-gray-200">
                     {users.map((user, index) => (
                         <li key={index} className="flex items-center space-x-2 py-2">
