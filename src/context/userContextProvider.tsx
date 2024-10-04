@@ -17,6 +17,7 @@ const UserContextProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
 	const [user, setUser] = useState<User>({
 		userName: "",
+		fullName: "",
 		email: "",
 		isActive: false,
 		isLoggedIn: false,
@@ -28,6 +29,7 @@ const UserContextProvider: React.FC<{ children: ReactNode }> = ({
 			if (data != undefined) {
 				setUser({
 					userName: data.userName,
+					fullName: data.fullName,
 					email: data.email,
 					isActive: true,
 					isLoggedIn: true,

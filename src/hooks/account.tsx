@@ -1,37 +1,7 @@
 import axios from "./initAxios";
 import { SessionResponse, User } from "../state/userState";
-
-// export const pingSessionStatus = async (
-// 	user: User,
-// 	setUser: React.Dispatch<React.SetStateAction<User>>
-// 	// default_count = 0,
-// 	// default_sleep = 3
-// ) => {
-// 	axios
-// 		.get(`/api/Account/validate-token/`, { withCredentials: true })
-// 		.then((res) => {
-// 			if (
-// 				res.data &&
-// 				typeof res.data === "object" &&
-// 				"message" in res.data &&
-// 				res.data.message == "Token is valid."
-// 			) {
-// 				if ("accountProfile" in res.data) {
-// 					setUser({
-// 						userName: res.data.accountProfile.userName,
-// 						email: res.data.accountProfile.email,
-// 						isActive: true,
-// 						isLoggedIn: true,
-// 					});
-// 				}
-// 			} else {
-// 				console.log("Some validation is wrong here. ", res.data);
-// 			}
-// 		})
-// 		.catch(() => {
-// 			console.log("ping aborted..");
-// 		});
-// };
+import { StopConnection as SignalRStopConnection } from "./signalRService";
+import * as signalR from "@microsoft/signalr";
 
 export const pingSessionStatus = async (): Promise<
 	SessionResponse | undefined
@@ -74,8 +44,10 @@ export const getAuthToken = async (
 ) => {
 	axios.get("/api/Account/get-user-token/").then((res) => {
 		if ("passed" in res.data) {
+			console.log(res.data);
 			setUser({
 				userName: res.data.userName,
+				fullName: res.data.fullName,
 				email: res.data.email,
 				isActive: true,
 				isLoggedIn: true,
@@ -84,7 +56,9 @@ export const getAuthToken = async (
 	});
 };
 
-export const logout = (setUser: React.Dispatch<React.SetStateAction<User>>) => {
+export const logout = (
+	setUser: React.Dispatch<React.SetStateAction<User>>
+) => {
 	axios
 		.get("/api/Account/logout/", {
 			headers: { "Content-Type": "application/json" },
@@ -94,12 +68,15 @@ export const logout = (setUser: React.Dispatch<React.SetStateAction<User>>) => {
 			if (res.status == 200) {
 				setUser({
 					userName: "",
+					fullName: "",
 					email: "",
 					isActive: false,
 					isLoggedIn: false,
 				});
 				localStorage.removeItem("userProfile");
 				localStorage.clear;
+
+				SignalRStopConnection();
 			}
 		})
 		.catch((err) => {
@@ -124,8 +101,10 @@ export const login = async (
 	);
 
 	if (response.data && response.status == 200) {
+
 		setUser({
 			userName: response.data.userName,
+			fullName: response.data.fullName,
 			email: response.data.email,
 			isActive: true,
 			isLoggedIn: true, // Updated to reflect logout

@@ -24,7 +24,7 @@ const LoginForm: React.FC = () => {
 
 		try {
 			await login(email, password, context.setUser, () => {
-				navigate("/");
+				 navigate("/");
 			});
 		} catch (err: any) {
 			// Handle specific errors based on the response or error object
