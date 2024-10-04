@@ -1,7 +1,8 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../context/userContextProvider";
 import { logout as hookLogout } from "../../hooks/account";
 import { Link, useNavigate } from "react-router-dom";
+
 
 export default function Navigation() {
     const [isOpen, setIsOpen] = useState(false);
@@ -10,12 +11,24 @@ export default function Navigation() {
 	const logout = () => {
 		if (context) {
 			const { setUser } = context;
+            localStorage.setItem('logout', Date.now().toString()); // Notify other tabs
 			hookLogout(setUser);
 			navigate("/login");
 		} else {
 			console.log("Unable to logout");
 		}
 	};
+    useEffect(() => {
+        const handleStorageChange = (event: StorageEvent) => {
+            if (event.key === 'logout') {
+                console.log('Logged out from another tab.');
+                window.location.href = '/login'; // Redirect to login
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.addEventListener('storage', handleStorageChange);
+    },[])
 	var authLink = (
 		<li className="nav-item">
 			<Link className="link-primary" to="/login">
