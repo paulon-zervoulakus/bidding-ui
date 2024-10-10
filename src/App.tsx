@@ -6,6 +6,7 @@ import PrivateRoute from "./components/routing/PrivateRoute";
 import Login from "./components/pages/authentication/Login";
 import Register from "./components/pages/registration/Register";
 import About from "./components/pages/aboutus";
+import AccountIndex from "./components/pages/account";
 
 export default function App() {
 	const NotFound = () => <h1>Page Not Found</h1>;
@@ -25,6 +26,7 @@ export default function App() {
 						{/* Private routes */}
 						<Route element={<PrivateRoute />}>
 							<Route path="/" element={<HomeIndex />} />
+							<Route path="/account" element={<AccountIndex />} />
 							{/* Add protected routes here */}
 						</Route>
 
