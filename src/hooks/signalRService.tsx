@@ -2,8 +2,9 @@ import * as signalR from "@microsoft/signalr";
 import GetCookie from "../helper/account";
 import { ConnectedUsersDTO, IncomingMessagesDTO } from "../dto/signalr";
 
+const API_URL = import.meta.env.API_URL || 'http://localhost:8000';
 const ClientConnection = new signalR.HubConnectionBuilder()
-	.withUrl("http://localhost:5260/subastaHub", {
+	.withUrl(API_URL + "/subastaHub", {
 		accessTokenFactory: () => GetCookie("signalr_token") || "",
 		withCredentials: true,
 		transport:

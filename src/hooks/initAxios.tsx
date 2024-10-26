@@ -1,6 +1,6 @@
 // services/axiosInstance.ts
 import axios from 'axios';
-const API_URL = 'http://localhost:5260'; // Your API URL
+const API_URL = import.meta.env.API_URL || 'http://localhost:8000';
 // Create an Axios instance with a default base URL
 const axiosInstance = axios.create({
     baseURL: API_URL , // Replace with your API base URL
