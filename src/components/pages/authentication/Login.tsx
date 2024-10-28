@@ -26,18 +26,22 @@ const LoginForm: React.FC = () => {
 			await login(email, password, context.setUser, () => {
 				 navigate("/");
 			});
-		} catch (err: any) {
-			// Handle specific errors based on the response or error object
-			if (err.response && err.response.status === 401) {
-				setError(
-					"Invalid credentials. Please check your email and password."
-				);
-			} else {
-				if (err.response.status == 400) {
-					setError(err.response.data);
+		} catch (err: unknown) {
+			// Type guard to check if `err` is an Error object
+			if (err instanceof Error && (err as any).response) {
+				const response = (err as any).response; // Casting to any for this access
+				if (response.status === 401) {
+					setError(
+						"Invalid credentials. Please check your email and password."
+					);
+				} else if (response.status === 400) {
+					setError(response.data);
 				} else {
 					setError("An error occurred. Please try again.");
 				}
+			} else {
+				// Handle case where `err` is not an expected type
+				setError("An unexpected error occurred.");
 			}
 		}
 	};

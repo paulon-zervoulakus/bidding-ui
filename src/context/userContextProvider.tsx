@@ -25,7 +25,7 @@ const UserContextProvider: React.FC<{ children: ReactNode }> = ({
 	useEffect(() => {
 		const fetchData = async () => {
 			const data: SessionResponse | undefined = await pingSessionStatus();
-			localStorage.clear;
+			localStorage.clear();
 			if (data != undefined) {
 				setUser({
 					userName: data.userName,

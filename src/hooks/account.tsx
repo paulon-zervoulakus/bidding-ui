@@ -34,7 +34,7 @@ export const pingSessionStatus = async (): Promise<
 		} else {
 			return undefined;
 		}
-	} catch (err) {
+	} catch  {
 		return undefined;
 	}
 };
@@ -74,7 +74,7 @@ export const logout = (
 					isLoggedIn: false,
 				});
 				localStorage.removeItem("userProfile");
-				localStorage.clear;
+				localStorage.clear();
 
 				SignalRStopConnection();
 			}
@@ -146,7 +146,7 @@ export const GetProfileDetails = async (
 		{ headers: { "Content-Type":"application/json"}, withCredentials: true}
 	);
 	if(response.data && response.status == 200 && onGetProfileDetails){
-		var res = response.data;
+		const res = response.data;
 
 		const data: BasicProfileDTO = {
 			userName: res.userName,
