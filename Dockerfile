@@ -13,6 +13,13 @@ RUN npm run build
 # Use a lightweight web server to serve the frontend
 FROM nginx:alpine
 
+# Install the tzdata package to configure the timezone
+RUN apk add --no-cache tzdata
+
+# Set the timezone to Asia/Manila (UTC+08:00)
+ENV TZ=Asia/Manila
+RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 COPY default.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 
