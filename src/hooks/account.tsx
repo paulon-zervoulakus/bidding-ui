@@ -1,7 +1,7 @@
 import axios from "./initAxios";
 import { SessionResponse, User } from "../state/userState";
 import { StopConnection as SignalRStopConnection } from "./signalRService";
-import * as signalR from "@microsoft/signalr";
+import { BasicProfileDTO } from "../dto/account";
 
 export const pingSessionStatus = async (): Promise<
 	SessionResponse | undefined
@@ -34,7 +34,7 @@ export const pingSessionStatus = async (): Promise<
 		} else {
 			return undefined;
 		}
-	} catch (err) {
+	} catch  {
 		return undefined;
 	}
 };
@@ -74,7 +74,7 @@ export const logout = (
 					isLoggedIn: false,
 				});
 				localStorage.removeItem("userProfile");
-				localStorage.clear;
+				localStorage.clear();
 
 				SignalRStopConnection();
 			}
@@ -137,3 +137,26 @@ export const register = async (
 		onSuccessRegistration();
 	}
 };
+
+export const GetProfileDetails = async (
+	onGetProfileDetails?: (data: BasicProfileDTO) => void
+) => {
+	const response = await axios.get(
+		"/api/Account/get-profile-basic",
+		{ headers: { "Content-Type":"application/json"}, withCredentials: true}
+	);
+	if(response.data && response.status == 200 && onGetProfileDetails){
+		const res = response.data;
+
+		const data: BasicProfileDTO = {
+			userName: res.userName,
+			fullName: res.fullName,
+			id: res.id,
+			email: res.email,
+			dateOfBirth: res.dateOfBirth,
+			role: res.role,
+			gender: res.gender
+		};
+		onGetProfileDetails(data);
+	}
+}

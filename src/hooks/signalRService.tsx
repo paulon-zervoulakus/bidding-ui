@@ -3,7 +3,7 @@ import GetCookie from "../helper/account";
 import { ConnectedUsersDTO, IncomingMessagesDTO } from "../dto/signalr";
 
 const ClientConnection = new signalR.HubConnectionBuilder()
-	.withUrl("http://localhost:5260/subastaHub", {
+	.withUrl(__API_URL__ + "/subastaHub", {
 		accessTokenFactory: () => GetCookie("signalr_token") || "",
 		withCredentials: true,
 		transport:
