@@ -3,7 +3,7 @@ import { register } from "../../../hooks/account";
 import { useNavigate } from "react-router-dom";
 
 const RegisterIndex: React.FC = () => {
-	var navigate = useNavigate();
+	const navigate = useNavigate();
 	// Define state for form fields and errors
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");

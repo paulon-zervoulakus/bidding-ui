@@ -8,9 +8,11 @@ export default function Navigation() {
     const [isOpen, setIsOpen] = useState(false);
 	const navigate = useNavigate();
 	const context = useContext(UserContext);
+    const { setUser } = context || {};
+    const { user } = context || {};
+
 	const logout = () => {
-		if (context) {
-			const { setUser } = context;
+		if (setUser) {
             localStorage.setItem('logout', Date.now().toString()); // Notify other tabs
 			hookLogout(setUser);
 			navigate("/login");
@@ -18,7 +20,9 @@ export default function Navigation() {
 			console.log("Unable to logout");
 		}
 	};
+
     useEffect(() => {
+
         const handleStorageChange = (event: StorageEvent) => {
             if (event.key === 'logout') {
                 console.log('Logged out from another tab.');
@@ -28,33 +32,10 @@ export default function Navigation() {
 
         window.addEventListener('storage', handleStorageChange);
         return () => window.addEventListener('storage', handleStorageChange);
-    },[])
-	var authLink = (
-		<li className="nav-item">
-			<Link className="link-primary" to="/login">
-				Login
-			</Link>
-		</li>
-	);
-	if (context) {
-		const { user } = context;
-		if (user.isLoggedIn) {
-			authLink = (
-				<li className="nav-item">
-					<a
-						className="nav-link link-primary"
-						href="#"
-						onClick={(e) => {
-							e.preventDefault(); // Prevent default anchor behavior
-							logout(); // Call the logout function
-						}}
-					>
-						Logout
-					</a>
-				</li>
-			);
-		}
-	}
+
+    },[]);
+
+
 
 
 	return (
@@ -103,15 +84,32 @@ export default function Navigation() {
                                 About Us
                             </Link>
                         </li>
-                        <li>
-                            <Link
-                                className="text-gray-300 hover:text-white"
-                                to="/services"
-                            >
-                                Services
-                            </Link>
-                        </li>
-                        {authLink}
+
+                        { (user && user.isLoggedIn) ? (
+                            <>
+                                <li>
+                                    <Link
+                                        className="text-gray-300 hover:text-white"
+                                        to="/account">Account
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <a className="nav-link link-primary"
+                                        href="#"
+                                        onClick={(e) => {
+                                            e.preventDefault(); // Prevent default anchor behavior
+                                            logout(); // Call the logout function
+                                        }}>Logout
+                                    </a>
+                                </li>
+                            </>
+                        ):(
+                            <li className="nav-item">
+                                <Link className="link-primary" to="/login">
+                                    Login
+                                </Link>
+                            </li>
+                        )}
                     </ul>
 
                     <form className="flex items-center mt-4 md:mt-0 md:ml-4" role="search">

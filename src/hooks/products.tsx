@@ -14,7 +14,7 @@ export const GetAvailableProducts = async (): Promise<ProductDTO[]>  => {
         }else{
             return [];
         }
-    }catch(err){
+    }catch{
         return [];
     }
 }
