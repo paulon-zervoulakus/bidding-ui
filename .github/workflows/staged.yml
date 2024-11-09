@@ -10,15 +10,49 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Ensure PR is from features or hotfix or bugfix branch
-      run:  |
-        if [[ "${{ github.head_ref }}" == feature/* ]]; then
-          echo "Pull request is from a feature branch, proceeding.";
-        elif [[ "${{ github.head_ref }}" == hotfix/* ]]; then
-          echo "Pull request is from a hotfix branch, proceeding.";
-        elif [[ "${{ github.head_ref }}" == bugfix/* ]]; then
-          echo "Pull request is from a bugfix branch, proceeding.";
-        else
-          echo "Error: Pull requests to the 'staged' branch can only be merged from 'features/*' or 'hotfix/*' or 'bugfix/*' branches.";
-          exit 1;
-        fi
+      - name: Ensure PR is from features or hotfix or bugfix branch
+        run: |
+          if [[ "${{ github.head_ref }}" == feature/* ]]; then
+            echo "Pull request is from a feature branch, proceeding.";
+          elif [[ "${{ github.head_ref }}" == hotfix/* ]]; then
+            echo "Pull request is from a hotfix branch, proceeding.";
+          elif [[ "${{ github.head_ref }}" == bugfix/* ]]; then
+            echo "Pull request is from a bugfix branch, proceeding.";
+          else
+            echo "Error: Pull requests to the 'staged' branch can only be merged from 'features/*' or 'hotfix/*' or 'bugfix/*' branches.";
+            exit 1;
+          fi
+
+      - name: Checkout stage branch
+        uses: actions/checkout@v3
+        with:
+          ref: staged
+
+      - name: Fetch and mock-merge pull request branch
+        run: |
+          git fetch origin +refs/pull/${{ github.event.pull_request.number }}/merge
+          git checkout -qf FETCH_HEAD  # Checkout the merged result
+
+      # Step 3: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.18.2"
+
+      # Step 4: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 5: Run linter
+      - name: Run linter
+        run: npm run lint
+
+      # Step 6: Run tests
+      - name: Run tests
+        run: npm test
+        env:
+          CI: true
+
+      # Step 7: Build application
+      - name: Build application
+        run: npm run build
