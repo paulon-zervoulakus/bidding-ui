@@ -13,7 +13,7 @@ const ProfileForm: React.FC = () => {
         gender: 3, // Default gender value
     } as BasicProfileDTO);
 
-    const handleChange = (e: { target: { name: any; value: any; }; }) => {
+    const handleChange = (e: { target: { name: string; value: string; }; }) => {
         const { name, value } = e.target;
         setAccount((prevAccount)=>({
             ...prevAccount,
