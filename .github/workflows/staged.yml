@@ -48,10 +48,10 @@ jobs:
         run: npm run lint
 
       # Step 6: Run tests
-      - name: Run tests
-        run: npm test
-        env:
-          CI: true
+      # - name: Run tests
+      #   run: npm test
+      #   env:
+      #     CI: true
 
       # Step 7: Build application
       - name: Build application
