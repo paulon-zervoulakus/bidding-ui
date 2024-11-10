@@ -42,7 +42,7 @@ export default function Navigation() {
         <div className="mx-auto bg-gray-800 md:flex md:flex-row md:justify-between">
             <nav className="p-4 mx-auto flex justify-between">
                 <a className="text-white text-lg font-bold" href="/">
-                    Bidding Application
+                    Bidding Application.
                 </a>
                 <button
                     className="md:hidden items-center text-white focus:outline-none"
