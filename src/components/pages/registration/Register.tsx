@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import { register } from "../../../hooks/account";
 import { useNavigate } from "react-router-dom";
+import { z } from "zod";
+
+const RegisterSchema = z.object({
+	email: z.string().email(),
+	password: z.string().min(6),
+	confirmPassword: z.string().min(6),
+	dateOfBirth: z.string(),
+});
 
 const RegisterIndex: React.FC = () => {
 	const navigate = useNavigate();
@@ -18,20 +26,22 @@ const RegisterIndex: React.FC = () => {
 		// Clear previous errors
 		setErrors([]);
 
-		// Basic validation
-		const newErrors: string[] = [];
-		if (!email) newErrors.push("Email is required.");
-		if (!password) newErrors.push("Password is required.");
-		if (password !== confirmPassword)
-			newErrors.push("Passwords do not match.");
-		if (!dateOfBirth) newErrors.push("Date of birth is required.");
+			// Validate form data using Zod
+		const result = RegisterSchema.safeParse({
+			email,
+			password,
+			confirmPassword,
+			dateOfBirth,
+		});
 
-		// If there are errors, set them and return
-		if (newErrors.length > 0) {
+		if (!result.success) {
+			// If validation fails, set errors
+			const newErrors = result.error.errors.map((err) => err.message);
 			setErrors(newErrors);
 			return;
 		}
 
+		// If validation passes, proceed with registration
 		register(email, password, confirmPassword, dateOfBirth, () => {
 			navigate("/login");
 		});
