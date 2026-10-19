@@ -63,7 +63,7 @@ const LoginForm: React.FC = () => {
 								Email
 							</label>
 							<input
-								type="email"
+								type="string"
 								id="email"
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
