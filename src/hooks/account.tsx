@@ -160,3 +160,30 @@ export const GetProfileDetails = async (
 		onGetProfileDetails(data);
 	}
 }
+
+export const UpdateProfileDefails = async (
+  profile: BasicProfileDTO,
+  onGetProfileDetails?: (data: BasicProfileDTO) => void
+): Promise<BasicProfileDTO> => {
+  const response = await fetch(
+    `${import.meta.env.VITE_DEV_API_URL}/api/Account/update-profile-basic`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(profile),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Profile update failed: ${response.statusText}`);
+  }
+
+  const updatedProfile: BasicProfileDTO = await response.json();
+
+  onGetProfileDetails?.(updatedProfile);
+
+  return updatedProfile;
+};

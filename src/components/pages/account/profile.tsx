@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
-import { GetProfileDetails } from "../../../hooks/account";
+import { GetProfileDetails, UpdateProfileDefails } from "../../../hooks/account";
 import { BasicProfileDTO } from "../../../dto/account";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../store/store";
+import { setUser } from "../../../store/user/userSlice";
 
 const ProfileForm: React.FC = () => {
+    const dispatch = useDispatch<AppDispatch>();
+
+    const { profile } = useSelector(
+        (state: RootState) => state.user
+    )
     const [account, setAccount] = useState<BasicProfileDTO>({
         id: 0,
         userName: '',
@@ -21,10 +29,20 @@ const ProfileForm: React.FC = () => {
         }));
     };
 
-    const handleSubmit = (e: { preventDefault: () => void; }) => {
+    const handleSubmit = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         // Handle form submission logic, such as sending data to the server
         console.log('Form submitted:', account);
+				try {
+					await UpdateProfileDefails(
+						account,
+						(data) => {
+							dispatch(setUser(data));
+						}
+					);
+				}catch(e){
+					console.error("Failed to update profile, " + e)
+				}
     };
 
     useEffect(() => {
@@ -85,7 +103,7 @@ const ProfileForm: React.FC = () => {
 
                 {/* Full Name */}
                 <div>
-                    <label className="block font-bold">Full Name</label>
+                    <label className="block font-bold">Full Name - {profile?.fullName}</label>
                     <input
                     type="text"
                     name="fullName"
