@@ -25,7 +25,9 @@ const ProfileForm: React.FC = () => {
         const { name, value } = e.target;
         setAccount((prevAccount)=>({
             ...prevAccount,
-            [name]: value
+            [name]: ["id", "role", "gender"].includes(name)
+                ? Number(value)
+                : value
         }));
     };
 
@@ -33,16 +35,16 @@ const ProfileForm: React.FC = () => {
         e.preventDefault();
         // Handle form submission logic, such as sending data to the server
         console.log('Form submitted:', account);
-				try {
-					await UpdateProfileDefails(
-						account,
-						(data) => {
-							dispatch(setUser(data));
-						}
-					);
-				}catch(e){
-					console.error("Failed to update profile, " + e)
-				}
+        try {
+            await UpdateProfileDefails(
+                account,
+                (data) => {
+                    dispatch(setUser(data));
+                }
+            );
+        }catch(e){
+            console.error("Failed to update profile, " + e)
+        }
     };
 
     useEffect(() => {

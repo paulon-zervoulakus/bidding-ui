@@ -4,6 +4,7 @@ export interface User {
 	email: string;
 	isActive: boolean;
 	isLoggedIn: boolean;
+	role: number;
 }
 
 export interface SessionResponse {

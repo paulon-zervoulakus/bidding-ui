@@ -51,6 +51,7 @@ export const getAuthToken = async (
 				email: res.data.email,
 				isActive: true,
 				isLoggedIn: true,
+				role: res.data.role
 			});
 		}
 	});
@@ -72,6 +73,7 @@ export const logout = (
 					email: "",
 					isActive: false,
 					isLoggedIn: false,
+					role: 0
 				});
 				localStorage.removeItem("userProfile");
 				localStorage.clear();
@@ -108,6 +110,7 @@ export const login = async (
 			email: response.data.email,
 			isActive: true,
 			isLoggedIn: true, // Updated to reflect logout
+			role: response.data.role
 		});
 		if (onSuccessLogin) {
 			onSuccessLogin();

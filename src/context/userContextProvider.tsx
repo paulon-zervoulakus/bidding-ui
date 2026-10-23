@@ -21,6 +21,7 @@ const UserContextProvider: React.FC<{ children: ReactNode }> = ({
 		email: "",
 		isActive: false,
 		isLoggedIn: false,
+		role: 0
 	});
 	useEffect(() => {
 		const fetchData = async () => {
@@ -33,6 +34,7 @@ const UserContextProvider: React.FC<{ children: ReactNode }> = ({
 					email: data.email,
 					isActive: true,
 					isLoggedIn: true,
+					role: data.role
 				});
 
 				localStorage.setItem("userProfile", JSON.stringify(data));
