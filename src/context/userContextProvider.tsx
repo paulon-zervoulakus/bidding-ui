@@ -16,11 +16,13 @@ const UserContextProvider: React.FC<{ children: ReactNode }> = ({
 	children,
 }) => {
 	const [user, setUser] = useState<User>({
+		id: 0,
 		userName: "",
 		fullName: "",
 		email: "",
 		isActive: false,
 		isLoggedIn: false,
+		role: 0
 	});
 	useEffect(() => {
 		const fetchData = async () => {
@@ -28,11 +30,13 @@ const UserContextProvider: React.FC<{ children: ReactNode }> = ({
 			localStorage.clear();
 			if (data != undefined) {
 				setUser({
+					id: data.id,
 					userName: data.userName,
 					fullName: data.fullName,
 					email: data.email,
 					isActive: true,
 					isLoggedIn: true,
+					role: data.role
 				});
 
 				localStorage.setItem("userProfile", JSON.stringify(data));

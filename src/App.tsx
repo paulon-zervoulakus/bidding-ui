@@ -1,12 +1,13 @@
 import UserContextProvider from "./context/userContextProvider";
 import Layout from "./components/layout";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import HomeIndex from "./components/pages/home";
+import HomeIndex from "./components/pages/home/Index";
 import PrivateRoute from "./components/routing/PrivateRoute";
 import Login from "./components/pages/authentication/Login";
 import Register from "./components/pages/registration/Register";
 import About from "./components/pages/aboutus";
 import AccountIndex from "./components/pages/account";
+import AuctionRoomPage from "./components/pages/rooms/AuctionRoomPage";
 
 export default function App() {
 	const NotFound = () => <h1>Page Not Found</h1>;
@@ -27,6 +28,7 @@ export default function App() {
 						<Route element={<PrivateRoute />}>
 							<Route path="/" element={<HomeIndex />} />
 							<Route path="/account" element={<AccountIndex />} />
+							<Route path="/room/:roomId" element={<AuctionRoomPage />} />
 							{/* Add protected routes here */}
 						</Route>
 
