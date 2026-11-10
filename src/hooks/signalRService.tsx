@@ -163,7 +163,7 @@ export const BroadcastSendMessage = (
 
 
 export const JoinAuctionRoom = async (
-	roomId: Number,
+	roomId: number,
 	groupName: string
 ): Promise<void> => {
 	try {
@@ -177,7 +177,7 @@ export const JoinAuctionRoom = async (
 };
 
 export const LeaveAuctionRoom = async (
-	roomId: Number,
+	roomId: number,
 	groupName: string
 ): Promise<void> => {
 	// Groups die with the connection, so there is nothing to leave if we're not connected

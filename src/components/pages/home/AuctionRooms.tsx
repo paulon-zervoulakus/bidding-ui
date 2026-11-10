@@ -4,7 +4,7 @@ import CreateRoomForm from "./CreateRoomForm";
 import { AuctionRoomDTO } from "../../../dto/auctionRoom";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../../store/store";
-import { GetAuctionRooms, GetManageAuctionRooms } from "../../../hooks/useAuctionRooms";
+import { GetManageAuctionRooms } from "../../../hooks/useAuctionRooms";
 import { setAuctionRooms } from "../../../store/bidding/biddingSlice";
 import { AcquireConnection, JoinAuctionRoom, LeaveAuctionRoom, ReceiveAuctionRoomMessage, ReleaseConnection, StopReceivingAuctionRoomMessage } from "../../../hooks/signalRService";
 

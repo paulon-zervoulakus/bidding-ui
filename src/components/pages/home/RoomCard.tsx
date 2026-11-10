@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { AuctionRoomDTO } from "../../../dto/auctionRoom";
 import { Settings } from "lucide-react";
 import { useFlashOnChange } from "../../../hooks/useFlashOnChange";

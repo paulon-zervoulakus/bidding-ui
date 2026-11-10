@@ -14,8 +14,6 @@ import RoomHeader from "./RoomHeader";
 import BidPanel from "./BidPanel";
 import { BidDTO } from "../../../dto/signalr";
 
-
-
 const formatPrice = (price: number) =>
   `₱${price.toLocaleString("en-PH", {
     minimumFractionDigits: 2,
@@ -29,7 +27,7 @@ const AuctionRoomPage: React.FC = () => {
   const [room, setRoom] = useState<AuctionRoomDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [bids, setBids] = useState<BidDTO[]>([]);
+  // const [bids, setBids] = useState<BidDTO[]>([]);
   const [members, setMembers] = useState<string[]>([]);
   const [activeProductId, setActiveProductId] = useState<number | null>(null);
   const [isJoined, setIsJoined] = useState(false);
@@ -48,7 +46,7 @@ const AuctionRoomPage: React.FC = () => {
   useEffect(() => {
     let cancelled = false;
     let joinedGroupName: string | null = null;
-    let joinedRoomId: Number = 0;
+    let joinedRoomId: number = 0;
     const loadRoom = async () => {
       try {
         setLoading(true);
@@ -70,7 +68,7 @@ const AuctionRoomPage: React.FC = () => {
         const firstProduct = found.roomProducts?.[0];
 
         setActiveProductId(firstProduct?.id ?? null);
-        setBids([]);
+        // setBids([]);
 
         if (!firstProduct) {
           setError("This auction room has no products yet.");
@@ -85,6 +83,7 @@ const AuctionRoomPage: React.FC = () => {
         }
 
         joinedGroupName = found.groupName;
+        joinedRoomId = found.id;
         setIsJoined(true);
       } catch (err) {
         if (!cancelled) {
@@ -103,7 +102,7 @@ const AuctionRoomPage: React.FC = () => {
     BroadcastReceiveBid((newBids: BidDTO[]) => {
       if (cancelled) return;
 
-      setBids(newBids);
+      // setBids(newBids);
     });
 
     BroadcastUserJoinedRoom(setMembers);
@@ -313,7 +312,6 @@ const AuctionRoomPage: React.FC = () => {
                 room={room}
                 currentPrice={currentPrice}
                 bids={[]}
-                members={members}
                 isJoined={isJoined}
               />
             )}

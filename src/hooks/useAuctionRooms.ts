@@ -121,8 +121,7 @@ export const AddProductToRoom = async (
 	}
 };
 export const CloseProductToRoom = async (
-	roomId: number,
-	dto: ProductDTO
+	roomId: number
 ): Promise<boolean> => {
 	try {
 		const res = await fetch(`${__API_URL__}/api/AuctionRooms/close/${roomId}`, {

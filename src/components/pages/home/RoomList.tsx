@@ -17,14 +17,10 @@ const RoomList: React.FC<RoomListProps> = (RoomListProps) => {
 	const user = context?.user;
 	const currentUserId = user?.id ?? 0;
 	const navigate = useNavigate();
-	const [joining, setJoining] = useState<Set<number>>(new Set());
-	const [leaving, setLeaving] = useState<Set<number>>(new Set());
-	const [closing, setClosing] = useState<Set<number>>(new Set());
-
 
 
 	const handleJoin = async (roomId: number) => {
-		setJoining((prev) => new Set([...prev, roomId]));
+
 		try {
 			const room = RoomListProps?.rooms ? RoomListProps.rooms.find((r) => r.id === roomId) : false;
 			if (room) {
@@ -34,16 +30,12 @@ const RoomList: React.FC<RoomListProps> = (RoomListProps) => {
 		} catch {
 			// SignalR join failed
 		} finally {
-			setJoining((prev) => {
-				const next = new Set(prev);
-				next.delete(roomId);
-				return next;
-			});
+
 		}
 	};
 
 	const handleLeave = async (roomId: number) => {
-		setLeaving((prev) => new Set([...prev, roomId]));
+
 		try {
 			const room = RoomListProps?.rooms ? RoomListProps.rooms.find((r) => r.id === roomId) : false;
 			if (room) {
@@ -52,27 +44,19 @@ const RoomList: React.FC<RoomListProps> = (RoomListProps) => {
 		} catch {
 			// SignalR leave failed
 		} finally {
-			setLeaving((prev) => {
-				const next = new Set(prev);
-				next.delete(roomId);
-				return next;
-			});
 		}
 	};
 
 	const handleClose = async (roomId: number) => {
-		setClosing((prev) => new Set([...prev, roomId]));
+
 		try {
 			// const success = await CloseAuctionRoom(roomId);
 			// if (success) {
 			// 	fetchRooms();
 			// }
 		} finally {
-			setClosing((prev) => {
-				const next = new Set(prev);
-				next.delete(roomId);
-				return next;
-			});
+
+
 		}
 	};
 
