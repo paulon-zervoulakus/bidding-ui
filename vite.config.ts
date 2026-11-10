@@ -7,6 +7,9 @@ export default defineConfig(({mode}) => {
   const isDevelopment = mode === 'development';
   return {
     plugins: [react()],
+    server: {
+      port: 3000
+    },
     define: {
       __API_URL__: isDevelopment
         ? JSON.stringify(env.VITE_DEV_API_URL || 'http://localhost:8081')

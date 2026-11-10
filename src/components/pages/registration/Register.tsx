@@ -26,7 +26,7 @@ const RegisterIndex: React.FC = () => {
 		// Clear previous errors
 		setErrors([]);
 
-			// Validate form data using Zod
+		// Validate form data using Zod
 		const result = RegisterSchema.safeParse({
 			email,
 			password,

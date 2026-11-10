@@ -2,7 +2,6 @@ import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../../../context/userContextProvider";
 import { login } from "../../../hooks/account";
-import { AxiosError } from "axios";
 
 const LoginForm: React.FC = () => {
 	const navigate = useNavigate();
@@ -28,20 +27,14 @@ const LoginForm: React.FC = () => {
 				 navigate("/");
 			});
 		} catch (err: unknown) {
-			// Type guard to check if `err` is an Error object
-			if (err instanceof Error && (err as AxiosError).response) {
-				const response = (err as AxiosError).response; // Casting to any for this access
-				if (response?.status === 401) {
+			if (err instanceof Error) {
+				const message = err.message;
+				if (message.includes("401")) {
 					setError(
 						"Invalid credentials. Please check your email and password."
 					);
-				} else if (response?.status === 400) {
-					 // Ensure that response.data is a string or null
-					const errorMessage = typeof response.data === 'string'
-					? response.data
-					: null;
-
-					setError(errorMessage);
+				} else if (message.includes("400")) {
+					setError("An error occurred. Please check your input.");
 				} else {
 					setError("An error occurred. Please try again.");
 				}
@@ -63,7 +56,7 @@ const LoginForm: React.FC = () => {
 								Email
 							</label>
 							<input
-								type="email"
+								type="string"
 								id="email"
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
