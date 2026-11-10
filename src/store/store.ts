@@ -1,5 +1,7 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import userReducer from "../store/user/userSlice";
+import biddingReducer from "../store/bidding/biddingSlice";
+
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
@@ -7,14 +9,17 @@ const persistConfig = {
   key: "root",
   storage
 }
-const persistUserReducer = persistReducer(
+const rootReducer = combineReducers({
+  user: userReducer,
+  bidding: biddingReducer
+});
+const allReducer = persistReducer(
   persistConfig,
-  userReducer
-)
+  rootReducer
+);
+
 export const store = configureStore({
-  reducer:  {
-    user: persistUserReducer,
-  },
+  reducer:  allReducer,
   middleware: (getDefaultMiddleware) => getDefaultMiddleware ({
     serializableCheck: false
   })

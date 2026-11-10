@@ -1,36 +1,41 @@
-export interface AuctionRoomDTO {
+import { RoomStatusEnum } from "./common";
+import { ProductDTO } from "./product";
+
+export interface AuctionRoomDTO
+{
     id: number;
     groupName: string;
     title: string;
     description?: string;
-    hostId: number;
-    hostUserName: string;
+    hostId?: number;
+    hostUserName?: string;
     status: RoomStatusEnum;
-    currentPrice: number;
-    createdAt: string;
-    memberCount: number;
+    createdAt?: string;
+    memberCount?: number;
+    productCount?: number;
+    roomProducts?: RoomProductDTO[];
 }
-
-export interface CreateAuctionRoomRequestDTO {
+export interface RoomProductDTO
+{
+    id?: number;
+    productId: number;
+    startingBidPrice: number;
+    lastBidPrice: number;
+    minimumBidIncrement: number;
+    startingBidTime: string;
+    endBidTime: string;
+    productDetails: ProductDTO;
+}
+export interface CreateEditAuctionRoomRequestDTO
+{
     groupName: string;
     title: string;
     description?: string;
+    productIds: number[];
+    products?: RoomProductDTO[];
+    newProducts: RoomProductDTO[],
 }
-
-export interface JoinAuctionRoomRequestDTO {
-    auctionRoomId: number;
-}
-
-export interface LeaveAuctionRoomRequestDTO {
-    auctionRoomId: number;
-}
-
-export enum RoomStatusEnum {
-    Active = 1,
-    Closed = 2,
-    Cancelled = 3
-}
-
-export interface AuctionRoomsResponse {
-    rooms: AuctionRoomDTO[];
+export interface AuctionRoomListDTO
+{
+    rooms: AuctionRoomDTO[]
 }

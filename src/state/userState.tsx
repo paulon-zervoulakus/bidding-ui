@@ -1,4 +1,5 @@
 export interface User {
+	id: number;
 	userName: string;
 	fullName: string;
 	email: string;
@@ -8,6 +9,7 @@ export interface User {
 }
 
 export interface SessionResponse {
+	id: number;
 	userName: string;
 	fullName: string;
 	email: string;

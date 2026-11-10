@@ -1,51 +1,75 @@
-import React, { useContext, useState } from "react";
-import { UserContext } from "../../../context/userContextProvider";
+import React, { useEffect, useState } from "react";
 import RoomList from "./RoomList";
 import CreateRoomForm from "./CreateRoomForm";
+import { AuctionRoomDTO } from "../../../dto/auctionRoom";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../../store/store";
+import { GetAuctionRooms, GetManageAuctionRooms } from "../../../hooks/useAuctionRooms";
+import { setAuctionRooms } from "../../../store/bidding/biddingSlice";
+import { AcquireConnection, JoinAuctionRoom, LeaveAuctionRoom, ReceiveAuctionRoomMessage, ReleaseConnection, StopReceivingAuctionRoomMessage } from "../../../hooks/signalRService";
 
+interface FormPopupProps
+{
+	isOpen: boolean;
+	isEditting: boolean;
+	room?: AuctionRoomDTO | null;
+}
+const initFormPopup: FormPopupProps = {
+	isOpen: false,
+	isEditting: false,
+	room: null
+}
+// Host/upgrade messaging lives in the sidebar (index.tsx); the create button lives in RoomList.
 const AuctionRooms: React.FC = () => {
-    const context = useContext(UserContext);
-    const user = context?.user;
-    const [isCreateOpen, setIsCreateOpen] = useState(false);
+	const [isPopupForm, setIsPopupForm] = useState<FormPopupProps>(initFormPopup);
+	// const [incomingRoomUpdate, setIncomingRoomUpdate] = useState<Record<string, AuctionRoomDTO>>({});
+	const dispatch = useDispatch<AppDispatch>();
 
-    const canCreate = user?.role === 3 || user?.role === 4;
+		const { rooms } = useSelector(
+			(state: RootState) => state.bidding
+		)
 
-    return (
-        <div className="space-y-6">
-            {canCreate && (
-                <div className="bg-white rounded-xl shadow-sm border border-indigo-100 p-6">
-                    <h2 className="text-lg font-bold text-gray-900 mb-2">Host an Auction</h2>
-                    <p className="text-gray-600 text-sm mb-4">
-                        Create a live auction room. Only Sellers and Administrators can host rooms.
-                    </p>
-                    <button
-                        onClick={() => setIsCreateOpen(true)}
-                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                    >
-                        + Create New Room
-                    </button>
-                </div>
-            )}
+		useEffect(() => {
+			let cancelled = false;
+			let joined: { id: number; groupName: string }[] = [];
 
-            {!canCreate && user?.isLoggedIn && (
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
-                    <h3 className="text-sm font-medium text-amber-800 mb-1">Upgrade to Host</h3>
-                    <p className="text-amber-700 text-sm">
-                        Only Sellers and Administrators can create auction rooms. Contact support to upgrade your account.
-                    </p>
-                </div>
-            )}
+			AcquireConnection().catch(console.error);
+			ReceiveAuctionRoomMessage(dispatch); // register immediately, not after the fetch
 
-            <RoomList />
+			GetManageAuctionRooms(async (data) => {
+				if (cancelled) return;
+				dispatch(setAuctionRooms(data));
+				joined = data.map((r) => ({ id: r.id, groupName: r.groupName }));
+				await Promise.allSettled(data.map((r) => JoinAuctionRoom(r.id, r.groupName)));
+			});
 
-            {isCreateOpen && (
-                <CreateRoomForm
-                    onClose={() => setIsCreateOpen(false)}
-                    onSuccess={() => setIsCreateOpen(false)}
-                />
-            )}
-        </div>
-    );
+			return () => {
+				cancelled = true;
+				StopReceivingAuctionRoomMessage();
+				joined.forEach((r) => LeaveAuctionRoom(r.id, r.groupName).catch(() => {}));
+				ReleaseConnection();
+			};
+		}, [dispatch]);
+
+	return (
+		<div>
+			<RoomList
+				rooms={rooms}
+				onCreate={() => setIsPopupForm({isOpen:true, isEditting:false})}
+				onEdit={(room: AuctionRoomDTO) => setIsPopupForm({isOpen:true, isEditting:true, room: room})} />
+
+			{isPopupForm.isOpen && (
+				<CreateRoomForm
+					room={isPopupForm?.room}
+					onClose={() => setIsPopupForm(initFormPopup)}
+					onSuccess={(room: AuctionRoomDTO) => {
+						setIsPopupForm({isOpen:true, isEditting:false, room: room})
+					}}
+				/>
+			)}
+
+		</div>
+	);
 };
 
 export default AuctionRooms;

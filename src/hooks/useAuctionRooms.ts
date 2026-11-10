@@ -1,85 +1,139 @@
-import axios from "./initAxios";
 import {
-    AuctionRoomDTO,
-    AuctionRoomsResponse,
-    CreateAuctionRoomRequestDTO,
-    JoinAuctionRoomRequestDTO,
-    LeaveAuctionRoomRequestDTO,
+	AuctionRoomDTO,
+	AuctionRoomListDTO,
 } from "../dto/auctionRoom";
+import { ProductDTO } from "../dto/product";
 
-export const GetAuctionRooms = async (): Promise<AuctionRoomDTO[]> => {
-    try {
-        const res = await axios.get<AuctionRoomsResponse>(`/api/AuctionRooms/`, {
-            withCredentials: true,
-        });
-        if (res.data && Array.isArray(res.data.rooms)) {
-            return res.data.rooms;
-        }
-        return [];
-    } catch {
-        return [];
-    }
+/**
+ * Get manage rooms or room that a user joined in *
+ * @param onGetManageAuctonRooms
+ * @returns
+ */
+export const GetManageAuctionRooms = async (
+	onGetAuctonRooms?: (data: AuctionRoomDTO[]) => void
+): Promise<AuctionRoomDTO[]> => {
+		const res = await fetch(`${__API_URL__}/api/AuctionRooms/get-manage-rooms`, {
+			method: "GET",
+			credentials: "include",
+		});
+
+		if (!res.ok) return [];
+
+		const data: AuctionRoomListDTO = await res.json();
+
+		onGetAuctonRooms?.(data.rooms);
+		return data.rooms ?? [];
+
+};
+
+export const GetAuctionRooms = async (
+	onGetAuctonRooms?: (data: AuctionRoomDTO[]) => void
+): Promise<AuctionRoomDTO[]> => {
+		const res = await fetch(`${__API_URL__}/api/AuctionRooms/`, {
+			method: "GET",
+			credentials: "include",
+		});
+
+		if (!res.ok) return [];
+
+		const data: AuctionRoomListDTO = await res.json();
+
+		onGetAuctonRooms?.(data.rooms);
+		return data.rooms ?? [];
+
 };
 
 export const CreateAuctionRoom = async (
-    dto: CreateAuctionRoomRequestDTO
+	dto: AuctionRoomDTO
 ): Promise<AuctionRoomDTO | null> => {
-    try {
-        const response = await fetch(
-            `${import.meta.env.VITE_DEV_API_URL}/api/AuctionRooms/create`,
-            {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify(dto),
-            }
-        );
+	try {
+		const response = await fetch(`${__API_URL__}/api/AuctionRooms/save-room`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			credentials: "include",
+			body: JSON.stringify(dto),
+		});
 
-        const auctionRoom: AuctionRoomDTO = await response.json();
+		if (!response.ok) return null;
 
-        return auctionRoom;
-    } catch {
-        return null;
-    }
+		const auctionRoom: AuctionRoomDTO = await response.json();
+
+		return auctionRoom;
+	} catch {
+		return null;
+	}
 };
 
-export const JoinAuctionRoom = async (
-    dto: JoinAuctionRoomRequestDTO
+// export const JoinAuctionRoom = async (
+// 	dto: JoinAuctionRoomRequestDTO
+// ): Promise<boolean> => {
+// 	try {
+// 		const res = await fetch(`${__API_URL__}/api/AuctionRooms/join`, {
+// 			method: "POST",
+// 			headers: {
+// 				"Content-Type": "application/json",
+// 			},
+// 			credentials: "include",
+// 			body: JSON.stringify(dto),
+// 		});
+// 		return res.status === 200;
+// 	} catch {
+// 		return false;
+// 	}
+// };
+
+// export const LeaveAuctionRoom = async (
+// 	dto: LeaveAuctionRoomRequestDTO
+// ): Promise<boolean> => {
+// 	try {
+// 		const res = await fetch(`${__API_URL__}/api/AuctionRooms/leave`, {
+// 			method: "POST",
+// 			headers: {
+// 				"Content-Type": "application/json",
+// 			},
+// 			credentials: "include",
+// 			body: JSON.stringify(dto),
+// 		});
+// 		return res.status === 200;
+// 	} catch {
+// 		return false;
+// 	}
+// };
+
+export const AddProductToRoom = async (
+	roomId: number,
+	dto: ProductDTO
 ): Promise<boolean> => {
-    try {
-        const res = await axios.post(`/api/AuctionRooms/join`, dto, {
-            withCredentials: true,
-        });
-        return res.status === 200;
-    } catch {
-        return false;
-    }
+	try {
+		const res = await fetch(`${__API_URL__}/api/AuctionRooms/${roomId}/products`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			credentials: "include",
+			body: JSON.stringify(dto),
+		});
+		return res.status === 200;
+	} catch {
+		return false;
+	}
 };
-
-export const LeaveAuctionRoom = async (
-    dto: LeaveAuctionRoomRequestDTO
+export const CloseProductToRoom = async (
+	roomId: number,
+	dto: ProductDTO
 ): Promise<boolean> => {
-    try {
-        const res = await axios.post(`/api/AuctionRooms/leave`, dto, {
-            withCredentials: true,
-        });
-        return res.status === 200;
-    } catch {
-        return false;
-    }
-};
-
-export const CloseAuctionRoom = async (roomId: number): Promise<boolean> => {
-    try {
-        const res = await axios.post(
-            `/api/AuctionRooms/close/${roomId}`,
-            {},
-            { withCredentials: true }
-        );
-        return res.status === 200;
-    } catch {
-        return false;
-    }
+	try {
+		const res = await fetch(`${__API_URL__}/api/AuctionRooms/close/${roomId}`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			credentials: "include",
+		});
+		return res.status === 200;
+	} catch {
+		return false;
+	}
 };

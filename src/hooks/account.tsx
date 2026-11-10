@@ -1,4 +1,3 @@
-import axios from "./initAxios";
 import { SessionResponse, User } from "../state/userState";
 import { StopConnection as SignalRStopConnection } from "./signalRService";
 import { BasicProfileDTO } from "../dto/account";
@@ -7,24 +6,30 @@ export const pingSessionStatus = async (): Promise<
 	SessionResponse | undefined
 > => {
 	try {
-		const res = await axios.get(`/api/Account/validate-token/`, {
-			withCredentials: true,
+		const res = await fetch(`${__API_URL__}/api/Account/validate-token/`, {
+			method: "GET",
+			credentials: "include",
 		});
 
+		if (!res.ok) return undefined;
+
+		const data = await res.json();
+
 		if (
-			res.data &&
-			typeof res.data === "object" &&
-			"status" in res.data &&
-			res.data.status == "token validated"
+			data &&
+			typeof data === "object" &&
+			"status" in data &&
+			data.status == "token validated"
 		) {
-			if ("accountProfile" in res.data) {
+			if ("accountProfile" in data) {
 				return {
-					userName: res.data.accountProfile.userName,
-					fullName: res.data.accountProfile.fullName,
-					email: res.data.accountProfile.email,
-					role: res.data.accountProfile.role,
-					gender: res.data.accountProfile.gender,
-					lastLoggedIn: res.data.accountProfile.lastLoggedIn,
+					id: data.accountProfile.id,
+					userName: data.accountProfile.userName,
+					fullName: data.accountProfile.fullName,
+					email: data.accountProfile.email,
+					role: data.accountProfile.role,
+					gender: data.accountProfile.gender,
+					lastLoggedIn: data.accountProfile.lastLoggedIn,
 					isActive: true,
 					isLoggedIn: true,
 				};
@@ -34,7 +39,7 @@ export const pingSessionStatus = async (): Promise<
 		} else {
 			return undefined;
 		}
-	} catch  {
+	} catch {
 		return undefined;
 	}
 };
@@ -42,38 +47,45 @@ export const pingSessionStatus = async (): Promise<
 export const getAuthToken = async (
 	setUser: React.Dispatch<React.SetStateAction<User>>
 ) => {
-	axios.get("/api/Account/get-user-token/").then((res) => {
-		if ("passed" in res.data) {
-			console.log(res.data);
-			setUser({
-				userName: res.data.userName,
-				fullName: res.data.fullName,
-				email: res.data.email,
-				isActive: true,
-				isLoggedIn: true,
-				role: res.data.role
-			});
-		}
-	});
+	fetch(`${__API_URL__}/api/Account/get-user-token/`, {
+		method: "GET",
+		credentials: "include",
+	})
+		.then((res) => res.json())
+		.then((res) => {
+			if ("passed" in res) {
+				console.log(res);
+				setUser({
+					id: res.id,
+					userName: res.userName,
+					fullName: res.fullName,
+					email: res.email,
+					isActive: true,
+					isLoggedIn: true,
+					role: res.role,
+				});
+			}
+		});
 };
 
 export const logout = (
 	setUser: React.Dispatch<React.SetStateAction<User>>
 ) => {
-	axios
-		.get("/api/Account/logout/", {
-			headers: { "Content-Type": "application/json" },
-			withCredentials: true,
-		})
+	fetch(`${__API_URL__}/api/Account/logout/`, {
+		method: "GET",
+		headers: { "Content-Type": "application/json" },
+		credentials: "include",
+	})
 		.then((res) => {
 			if (res.status == 200) {
 				setUser({
+					id: 0,
 					userName: "",
 					fullName: "",
 					email: "",
 					isActive: false,
 					isLoggedIn: false,
-					role: 0
+					role: 0,
 				});
 				localStorage.removeItem("userProfile");
 				localStorage.clear();
@@ -92,29 +104,30 @@ export const login = async (
 	setUser: React.Dispatch<React.SetStateAction<User>>,
 	onSuccessLogin?: () => void
 ) => {
-	const response = await axios.post(
-		"/api/Account/login/", // Endpoint URL
-		{ Email: email, Password: password }, // Request body
-		{
-			// Configuration object
-			headers: { "Content-Type": "application/json" },
-			withCredentials: true,
-		}
-	);
+	const response = await fetch(`${__API_URL__}/api/Account/login/`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		credentials: "include",
+		body: JSON.stringify({ Email: email, Password: password }),
+	});
 
-	if (response.data && response.status == 200) {
+	if (response.status == 200) {
+		const data = await response.json();
 
 		setUser({
-			userName: response.data.userName,
-			fullName: response.data.fullName,
-			email: response.data.email,
+			id: data.id,
+			userName: data.userName,
+			fullName: data.fullName,
+			email: data.email,
 			isActive: true,
 			isLoggedIn: true, // Updated to reflect logout
-			role: response.data.role
+			role: data.role,
 		});
 		if (onSuccessLogin) {
 			onSuccessLogin();
 		}
+	} else {
+		throw new Error(`Login failed: ${response.status}`);
 	}
 };
 
@@ -125,18 +138,18 @@ export const register = async (
 	dateOfBirth: string,
 	onSuccessRegistration?: () => void
 ) => {
-	const response = await axios.post(
-		"/api/Account/register/", // Endpoint URL
-		{
+	const response = await fetch(`${__API_URL__}/api/Account/register/`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({
 			Email: email,
 			Password: password,
 			ConfirmPassword: confirmPassword,
 			DateOfBirth: dateOfBirth,
-		}, // Request body
-		{ headers: { "Content-Type": "application/json" } }
-	);
+		}),
+	});
 
-	if (response.data && response.status == 200 && onSuccessRegistration) {
+	if (response.status == 200 && onSuccessRegistration) {
 		onSuccessRegistration();
 	}
 };
@@ -144,12 +157,13 @@ export const register = async (
 export const GetProfileDetails = async (
 	onGetProfileDetails?: (data: BasicProfileDTO) => void
 ) => {
-	const response = await axios.get(
-		"/api/Account/get-profile-basic",
-		{ headers: { "Content-Type":"application/json"}, withCredentials: true}
-	);
-	if(response.data && response.status == 200 && onGetProfileDetails){
-		const res = response.data;
+	const response = await fetch(`${__API_URL__}/api/Account/get-profile-basic`, {
+		method: "GET",
+		headers: { "Content-Type": "application/json" },
+		credentials: "include",
+	});
+	if (response.status == 200 && onGetProfileDetails) {
+		const res = await response.json();
 
 		const data: BasicProfileDTO = {
 			userName: res.userName,
@@ -158,35 +172,35 @@ export const GetProfileDetails = async (
 			email: res.email,
 			dateOfBirth: res.dateOfBirth,
 			role: res.role,
-			gender: res.gender
+			gender: res.gender,
 		};
 		onGetProfileDetails(data);
 	}
-}
+};
 
 export const UpdateProfileDefails = async (
-  profile: BasicProfileDTO,
-  onGetProfileDetails?: (data: BasicProfileDTO) => void
+	profile: BasicProfileDTO,
+	onGetProfileDetails?: (data: BasicProfileDTO) => void
 ): Promise<BasicProfileDTO> => {
-  const response = await fetch(
-    `${import.meta.env.VITE_DEV_API_URL}/api/Account/update-profile-basic`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(profile),
-    }
-  );
+	const response = await fetch(
+		`${__API_URL__}/api/Account/update-profile-basic`,
+		{
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			credentials: "include",
+			body: JSON.stringify(profile),
+		}
+	);
 
-  if (!response.ok) {
-    throw new Error(`Profile update failed: ${response.statusText}`);
-  }
+	if (!response.ok) {
+		throw new Error(`Profile update failed: ${response.statusText}`);
+	}
 
-  const updatedProfile: BasicProfileDTO = await response.json();
+	const updatedProfile: BasicProfileDTO = await response.json();
 
-  onGetProfileDetails?.(updatedProfile);
+	onGetProfileDetails?.(updatedProfile);
 
-  return updatedProfile;
+	return updatedProfile;
 };
