@@ -12,7 +12,6 @@ interface BidPanelProps {
 	room: AuctionRoomDTO;
 	currentPrice: number;
 	bids: Bid[];
-	members: string[];
 	isJoined: boolean;
 }
 
@@ -20,7 +19,6 @@ const BidPanel: React.FC<BidPanelProps> = ({
 	room,
 	currentPrice,
 	bids,
-	members,
 	isJoined,
 }) => {
 	const [bidAmount, setBidAmount] = useState<string>("");

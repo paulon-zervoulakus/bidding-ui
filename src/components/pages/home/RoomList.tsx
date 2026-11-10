@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuctionRoomDTO } from "../../../dto/auctionRoom";
 
@@ -17,14 +17,10 @@ const RoomList: React.FC<RoomListProps> = (RoomListProps) => {
 	const user = context?.user;
 	const currentUserId = user?.id ?? 0;
 	const navigate = useNavigate();
-	const [joining, setJoining] = useState<Set<number>>(new Set());
-	const [leaving, setLeaving] = useState<Set<number>>(new Set());
-	const [closing, setClosing] = useState<Set<number>>(new Set());
-
 
 
 	const handleJoin = async (roomId: number) => {
-		setJoining((prev) => new Set([...prev, roomId]));
+
 		try {
 			const room = RoomListProps?.rooms ? RoomListProps.rooms.find((r) => r.id === roomId) : false;
 			if (room) {
@@ -33,17 +29,12 @@ const RoomList: React.FC<RoomListProps> = (RoomListProps) => {
 			}
 		} catch {
 			// SignalR join failed
-		} finally {
-			setJoining((prev) => {
-				const next = new Set(prev);
-				next.delete(roomId);
-				return next;
-			});
+			console.log("Error handleJoin");
 		}
 	};
 
 	const handleLeave = async (roomId: number) => {
-		setLeaving((prev) => new Set([...prev, roomId]));
+
 		try {
 			const room = RoomListProps?.rooms ? RoomListProps.rooms.find((r) => r.id === roomId) : false;
 			if (room) {
@@ -51,29 +42,13 @@ const RoomList: React.FC<RoomListProps> = (RoomListProps) => {
 			}
 		} catch {
 			// SignalR leave failed
-		} finally {
-			setLeaving((prev) => {
-				const next = new Set(prev);
-				next.delete(roomId);
-				return next;
-			});
+			console.log("Error handleLeave");
 		}
 	};
 
 	const handleClose = async (roomId: number) => {
-		setClosing((prev) => new Set([...prev, roomId]));
-		try {
-			// const success = await CloseAuctionRoom(roomId);
-			// if (success) {
-			// 	fetchRooms();
-			// }
-		} finally {
-			setClosing((prev) => {
-				const next = new Set(prev);
-				next.delete(roomId);
-				return next;
-			});
-		}
+
+		console.log("handleClose")
 	};
 
 	const canCreate = user?.role === 3 || user?.role === 4;
