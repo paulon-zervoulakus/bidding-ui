@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { AuctionRoomDTO } from "../../../dto/auctionRoom";
 import { Settings } from "lucide-react";
 import { useFlashOnChange } from "../../../hooks/useFlashOnChange";
+import { FlashWrap } from "../../wrapper/FlashWrap";
 
 interface RoomCardProps {
   room: AuctionRoomDTO;
@@ -118,7 +119,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
                   </div>
 
                   <span className="text-lg font-bold text-indigo-600 whitespace-nowrap">
-                    {formatPrice(product.lastBidPrice)}
+                    <FlashWrap value={formatPrice(product.lastBidPrice)} />
                   </span>
                 </div>
 
@@ -126,14 +127,14 @@ const RoomCard: React.FC<RoomCardProps> = ({
                   <div>
                     <p className="text-xs text-gray-500">Starting bid</p>
                     <p className="font-medium text-gray-800">
-                      {formatPrice(product.startingBidPrice)}
+                      <FlashWrap value={formatPrice(product.startingBidPrice)} />
                     </p>
                   </div>
 
                   <div>
                     <p className="text-xs text-gray-500">Minimum bid increment</p>
                     <p className="font-medium text-gray-800">
-                      {formatPrice(product.minimumBidIncrement)}
+                      <FlashWrap value={formatPrice(product.minimumBidIncrement)} />
                     </p>
                   </div>
 
