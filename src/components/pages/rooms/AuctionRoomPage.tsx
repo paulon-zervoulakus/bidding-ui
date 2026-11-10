@@ -8,7 +8,7 @@ import {
   LeaveAuctionRoom as SignalRLeaveAuctionRoom,
   BroadcastReceiveBid,
   BroadcastUserJoinedRoom,
-  BroadcastUserLeftRoom,
+  BroadcastUserLeftRoom
 } from "../../../hooks/signalRService";
 import RoomHeader from "./RoomHeader";
 import BidPanel from "./BidPanel";

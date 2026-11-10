@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuctionRoomDTO } from "../../../dto/auctionRoom";
 
@@ -29,8 +29,7 @@ const RoomList: React.FC<RoomListProps> = (RoomListProps) => {
 			}
 		} catch {
 			// SignalR join failed
-		} finally {
-
+			console.log("Error handleJoin");
 		}
 	};
 
@@ -43,21 +42,13 @@ const RoomList: React.FC<RoomListProps> = (RoomListProps) => {
 			}
 		} catch {
 			// SignalR leave failed
-		} finally {
+			console.log("Error handleLeave");
 		}
 	};
 
 	const handleClose = async (roomId: number) => {
 
-		try {
-			// const success = await CloseAuctionRoom(roomId);
-			// if (success) {
-			// 	fetchRooms();
-			// }
-		} finally {
-
-
-		}
+		console.log("handleClose")
 	};
 
 	const canCreate = user?.role === 3 || user?.role === 4;
