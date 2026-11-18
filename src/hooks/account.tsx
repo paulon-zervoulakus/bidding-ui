@@ -1,5 +1,5 @@
 import { SessionResponse, User } from "../state/userState";
-import { StopConnection as SignalRStopConnection } from "./signalRService";
+// import { StopConnection as SignalRStopConnection } from "./signalRService";
 import { BasicProfileDTO } from "../dto/account";
 
 export const pingSessionStatus = async (): Promise<
@@ -90,7 +90,7 @@ export const logout = (
 				localStorage.removeItem("userProfile");
 				localStorage.clear();
 
-				SignalRStopConnection();
+				// SignalRStopConnection();
 			}
 		})
 		.catch((err) => {

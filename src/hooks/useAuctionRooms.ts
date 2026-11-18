@@ -9,27 +9,42 @@ import { ProductDTO } from "../dto/product";
  * @param onGetManageAuctonRooms
  * @returns
  */
-export const GetManageAuctionRooms = async (
-	onGetAuctonRooms?: (data: AuctionRoomDTO[]) => void
-): Promise<AuctionRoomDTO[]> => {
-		const res = await fetch(`${__API_URL__}/api/AuctionRooms/get-manage-rooms`, {
-			method: "GET",
-			credentials: "include",
-		});
+// export const GetManageAuctionRooms = async (
+// 	onGetAuctionRooms?: (data: AuctionRoomDTO[]) => void
+// ): Promise<AuctionRoomDTO[]> => {
+// 		const res = await fetch(`${__API_URL__}/api/AuctionRooms/get-manage-rooms`, {
+// 			method: "GET",
+// 			credentials: "include",
+// 		});
 
-		if (!res.ok) return [];
+// 		if (!res.ok) return [];
 
-		const data: AuctionRoomListDTO = await res.json();
+// 		const data: AuctionRoomListDTO = await res.json();
 
-		onGetAuctonRooms?.(data.rooms);
-		return data.rooms ?? [];
+// 		onGetAuctionRooms?.(data.rooms);
+// 		return data.rooms ?? [];
+// };
 
-};
+// export const GetPublicAuctionRooms = async (
+// 	onGetAuctionRooms?: (data: AuctionRoomDTO[]) => void
+// ): Promise<AuctionRoomDTO[]> => {
+// 		const res = await fetch(`${__API_URL__}/api/AuctionRooms/get-public-rooms`, {
+// 			method: "GET",
+// 			credentials: "include",
+// 		});
+
+// 		if (!res.ok) return [];
+
+// 		const data: AuctionRoomListDTO = await res.json();
+
+// 		onGetAuctionRooms?.(data.rooms);
+// 		return data.rooms ?? [];
+// };
 
 export const GetAuctionRooms = async (
 	onGetAuctonRooms?: (data: AuctionRoomDTO[]) => void
 ): Promise<AuctionRoomDTO[]> => {
-		const res = await fetch(`${__API_URL__}/api/AuctionRooms/`, {
+		const res = await fetch(`${__API_URL__}/api/AuctionRooms/get-rooms`, {
 			method: "GET",
 			credentials: "include",
 		});
@@ -66,23 +81,46 @@ export const CreateAuctionRoom = async (
 	}
 };
 
-// export const JoinAuctionRoom = async (
-// 	dto: JoinAuctionRoomRequestDTO
-// ): Promise<boolean> => {
-// 	try {
-// 		const res = await fetch(`${__API_URL__}/api/AuctionRooms/join`, {
-// 			method: "POST",
-// 			headers: {
-// 				"Content-Type": "application/json",
-// 			},
-// 			credentials: "include",
-// 			body: JSON.stringify(dto),
-// 		});
-// 		return res.status === 200;
-// 	} catch {
-// 		return false;
-// 	}
-// };
+export const SubscribeAuctionRoom = async (
+	dto: {roomId: number}
+) => {
+	try {
+		const res = await fetch(`${__API_URL__}/api/AuctionRooms/subscribe`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			credentials: "include",
+			body: JSON.stringify(dto),
+		});
+		if(!res.ok) {
+			const data = await res.json();
+			console.log(data);
+		}
+	} catch(e) {
+		console.log(`Error on Subscribe: ${e}`);
+	}
+};
+export const UnsubscribeAuctionRoom = async (
+	dto: {roomId: number}
+) => {
+	try {
+		const res = await fetch(`${__API_URL__}/api/AuctionRooms/unsubscribe`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			credentials: "include",
+			body: JSON.stringify(dto),
+		});
+		if(!res.ok) {
+			const data = await res.json();
+			console.log(data);
+		}
+	} catch(e) {
+		console.log(`Error on Un-subscribe: ${e}`);
+	}
+};
 
 // export const LeaveAuctionRoom = async (
 // 	dto: LeaveAuctionRoomRequestDTO

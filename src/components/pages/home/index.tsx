@@ -4,8 +4,11 @@ import Chatbox from "./Chatbox";
 import AuctionRooms from "./AuctionRooms";
 import CreateProductForm from "./CreateProductForm";
 import { UserContext } from "../../../context/userContextProvider";
+import { GetAvailableProducts } from "../../../hooks/useProducts";
+import { ProductListDTO } from "../../../dto/product";
 
 const HomeIndex: React.FC = () => {
+	const [products, setProducts] = useState<ProductListDTO>();
 	const [fullName, setFullName] = useState("");
 	const context = useContext(UserContext);
 	const canCreate = context?.user?.role === 3 || context?.user?.role === 4;
@@ -15,6 +18,11 @@ const HomeIndex: React.FC = () => {
 			setFullName(user.fullName);
 		}
 	}, [context]);
+	useEffect(() => {
+		GetAvailableProducts(async (data) => {
+			setProducts(data);
+		}, (e) => console.log(e));
+	},[])
 
 	const [isProductFormOpen, setIsProductFormOpen] = useState(false);
 	const [productsVersion, setProductsVersion] = useState(0);
@@ -50,7 +58,9 @@ const HomeIndex: React.FC = () => {
 								)}
 							</div>
 							{/* key change remounts the list, which refetches after a product is created */}
-							<ProductList key={productsVersion} />
+							<ProductList
+								products={products?.products}
+								key={productsVersion} />
 						</section>
 
 						<section>
