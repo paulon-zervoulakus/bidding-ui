@@ -1,9 +1,10 @@
 import * as signalR from "@microsoft/signalr";
 import GetCookie from "../helper/account";
-import { BidDTO, ConnectedUsersDTO, IncomingMessagesDTO } from "../dto/signalr";
+import { BidDTO, ConnectedUserDTO, IncomingMessagesDTO, RoomMember } from "../dto/signalr";
 import { AuctionRoomDTO } from "../dto/auctionRoom";
 import { AppDispatch } from "../store/store";
 import { updateAuctionRoom } from "../store/bidding/biddingSlice";
+import React, { SetStateAction } from "react";
 
 const ClientConnection = new signalR.HubConnectionBuilder()
 	.withUrl(__API_URL__ + "/subastaHub", {
@@ -67,15 +68,12 @@ export const ReleaseConnection = (): void => {
 	}
 };
 
-// ---------------------------------------------------------------------------
-// Handlers: .off() first so re-registering never stacks duplicate handlers
-// ---------------------------------------------------------------------------
-export const BroadcastReceiveMessage = (
+export const BroadcastReceiveLobbyMessage = async (
 	setIncomingMessages: React.Dispatch<React.SetStateAction<IncomingMessagesDTO[]>>
 ) => {
-	ClientConnection.off("ReceiveMessage");
+	ClientConnection.off("ReceiveLobbyMessage");
 	ClientConnection.on(
-		"ReceiveMessage",
+		"ReceiveLobbyMessage",
 		(user: string, message: string) => {
 			setIncomingMessages(
 				(prevIncomingMessages) => [
@@ -88,30 +86,25 @@ export const BroadcastReceiveMessage = (
 	);
 }
 export const BroadcastUpdateOnlineUserList = (
-	setUsers: React.Dispatch<React.SetStateAction<ConnectedUsersDTO[]>>
+	setUsers: React.Dispatch<React.SetStateAction<ConnectedUserDTO[]>>
 ) => {
-	ClientConnection.off("UpdateOnlineUsersList");
 	ClientConnection.on(
 		"UpdateOnlineUsersList",
-		(userList: ConnectedUsersDTO[]) => {
+		(userList: any[]) => {
 			setUsers(userList);
 		}
 	);
 }
 export const StartConnection = (
-	setUsers: React.Dispatch<React.SetStateAction<ConnectedUsersDTO[]>>,
 	setInputCtrl: React.Dispatch<React.SetStateAction<boolean>>,
-	setIncomingMessages: React.Dispatch<React.SetStateAction<IncomingMessagesDTO[]>>
 ) => {
 	retain();
 	const connect = () => {
 		EnsureConnection()
 			.then(() => {
 				console.log("SignalR Connected..");
-				setUsers([]);
 				setInputCtrl(false);
-				BroadcastReceiveMessage(setIncomingMessages);
-				BroadcastUpdateOnlineUserList(setUsers);
+
 			})
 			.catch(() => {
 				setInputCtrl(true);
@@ -121,29 +114,111 @@ export const StartConnection = (
 	};
 	connect();
 }
-export const ReceiveAuctionRoomMessage = (
-	dispatch: AppDispatch
+export const LeaveAuctionRoom = async (
+	roomId: number,
+	groupName: string
+): Promise<void> => {
+	// Groups die with the connection, so there is nothing to leave if we're not connected
+	if (ClientConnection.state !== signalR.HubConnectionState.Connected) return;
+	try {
+		await ClientConnection.invoke("LeaveAuctionRoom", roomId, groupName);
+		console.log(`Left: room-${roomId}-${groupName}`);
+	} catch (err) {
+		console.error("Error leaving room: ", err);
+		throw new Error(String(err));
+	}
+};
+export const JoinAuctionRoom = async (
+	roomId: number,
+	groupName: string
+): Promise<void> => {
+	try {
+		await EnsureConnection();
+		await ClientConnection.invoke("JoinAuctionRoom", roomId, groupName);
+		console.log(`Joined: room-${roomId}-${groupName}`);
+	} catch (err) {
+		console.error("Error joining room: ", err);
+		throw new Error(String(err));
+	}
+};
+
+export const SendRoomMessage = (groupName: string, message: string): Promise<void> =>
+  ClientConnection.invoke("SendRoomMessage", groupName, message);
+
+export const BroadcastReceiveRoomMessage = (onMessage: (m: { user: string; message: string }) => void) => {
+  ClientConnection.off("ReceiveRoomMessage");
+  ClientConnection.on("ReceiveRoomMessage", (user: string, message: string) => onMessage({ user, message }));
+};
+
+export const SendBid = (
+	groupName: string,
+	roomProductId: number,
+	amount: number,
+): Promise<void> => {
+	return new Promise((resolve, reject) => {
+		if (ClientConnection.state === signalR.HubConnectionState.Connected) {
+			ClientConnection
+				.invoke("SendBid", groupName, roomProductId, amount)
+				.then(() => {
+					resolve();
+				})
+				.catch((err) => {
+					console.error("Error sending bid: ", err);
+					reject(new Error(err));
+				});
+		} else {
+			reject(new Error("SignalR connection not available"));
+		}
+	});
+};
+
+export const BroadcastReceiveProductBid = (
+	onBidsReceived: (newBids: BidDTO[]
+) => void) => {
+  ClientConnection.off("ReceiveBid");
+  ClientConnection.on("ReceiveBid", (roomId: number, roomProductId: number, bidder: string, amount: number) => {
+    onBidsReceived([{ roomId, roomProductId, bidder, amount, timestamp: new Date().toISOString() }]);
+  });
+};
+
+export const BroadcastUserJoinedRoom = (
+	setMembers: React.Dispatch<SetStateAction<RoomMember[]>>
 ) => {
-	// ClientConnection.off("UpdateAuctionRoom");
+	ClientConnection.off("UserJoinedRoom");
 	ClientConnection.on(
-		"UpdateAuctionRoom",
-		(message: AuctionRoomDTO) => dispatch(updateAuctionRoom(message))
+		"UserJoinedRoom",
+		(connectionId: string, groupName: string, user: ConnectedUserDTO) => {
+			console.log(groupName, user);
+			setMembers((prev) =>
+				prev.some((m) => m.connectionId === connectionId)
+					? prev                                  // no duplicates after a reconnect
+					: [...prev, { ...user, connectionId, groupName }]
+			);
+		}
 	);
 };
-export const StopReceivingAuctionRoomMessage = () => {
-	ClientConnection.off("UpdateAuctionRoom");
+
+export const BroadcastUserLeftRoom = (
+	setMembers: React.Dispatch<React.SetStateAction<RoomMember[]>>
+) => {
+	ClientConnection.off("UserLeftRoom");
+	ClientConnection.on("UserLeftRoom", (connectionId: string, groupName: string, user: ConnectedUserDTO) => {
+		setMembers((prev) =>
+			prev.filter((m) => m.connectionId !== connectionId && m.groupName !== groupName));
+	});
 };
-export const BroadcastSendMessage = (
+
+/*****	Lobby */
+export const SendLobbyMessage = (
 	message: string,
 	setMessage: React.Dispatch<React.SetStateAction<string>>
 ): Promise<void> => {
 	return new Promise((resolve, reject) => {
 		if (ClientConnection.state === signalR.HubConnectionState.Connected) {
 			const token = GetCookie("signalr_token");
-
 			if (token) {
 				ClientConnection
-					.invoke("SendMessage", message, token)
+					.invoke("SendLobbyMessage", message, token)
 					.then(() => {
 						setMessage("");
 						resolve();
@@ -160,30 +235,58 @@ export const BroadcastSendMessage = (
 		}
 	});
 };
-
-
-export const JoinAuctionRoom = async (
+/**
+ * Receives update for Lobby Auction Rooms
+ * @param dispatch
+ * @param currentUserId
+ */
+export const BroadcastLobbyAuctionRoomMessage = (
+	dispatch: AppDispatch,
+	currentUserId: number
+) => {
+	ClientConnection.off("UpdateLobbyAuctionRoom");
+	ClientConnection.on(
+		"UpdateLobbyAuctionRoom",
+		(dto: AuctionRoomDTO) => {
+			dispatch(updateAuctionRoom({room:dto, userId: currentUserId}));
+		}
+	);
+};
+export const StopBroadcastLobbyAuctionRoomMessage = () => {
+	ClientConnection.off("UpdateLobbyAuctionRoom");
+};
+/**
+ * Connect to Lobby Auction Room
+ * @param roomId
+ * @param groupName
+ */
+export const JoinLobbyAuctionRoom = async (
 	roomId: number,
 	groupName: string
 ): Promise<void> => {
 	try {
 		await EnsureConnection();
-		await ClientConnection.invoke("JoinRoom", roomId, groupName);
+		await ClientConnection.invoke("JoinLobbyAuctionRoom", roomId, groupName);
 		console.log(`Joined room: ${roomId}-${groupName}`);
 	} catch (err) {
 		console.error("Error joining room: ", err);
 		throw new Error(String(err));
 	}
 };
-
-export const LeaveAuctionRoom = async (
+/**
+ * Disconnect to Lobby Auction Room
+ * @param roomId
+ * @param groupName
+ * @returns
+ */
+export const LeaveLobbyAuctionRoom = async (
 	roomId: number,
 	groupName: string
 ): Promise<void> => {
 	// Groups die with the connection, so there is nothing to leave if we're not connected
 	if (ClientConnection.state !== signalR.HubConnectionState.Connected) return;
 	try {
-		await ClientConnection.invoke("LeaveRoom", roomId, groupName);
+		await ClientConnection.invoke("LeaveLobbyAuctionRoom", roomId, groupName);
 		console.log(`Left room: ${groupName}`);
 	} catch (err) {
 		console.error("Error leaving room: ", err);
@@ -191,71 +294,17 @@ export const LeaveAuctionRoom = async (
 	}
 };
 
-export const SendBid = (
-	groupName: string,
-	amount: number,
-	bidderName: string
-): Promise<void> => {
-	return new Promise((resolve, reject) => {
-		if (ClientConnection.state === signalR.HubConnectionState.Connected) {
-			ClientConnection
-				.invoke("SendBid", groupName, amount, bidderName)
-				.then(() => {
-					resolve();
-				})
-				.catch((err) => {
-					console.error("Error sending bid: ", err);
-					reject(new Error(err));
-				});
-		} else {
-			reject(new Error("SignalR connection not available"));
-		}
-	});
-};
 
-export const BroadcastReceiveBid = (
-  onBidsReceived: (newBids: BidDTO[]) => void
-) => {
-  ClientConnection.off("ReceiveBid");
-  ClientConnection.on(
-    "ReceiveBid",
-    (bidder: string, amount: number) => {
-      const newBid: BidDTO = {
-        bidder,
-        amount,
-        timestamp: new Date().toISOString()
-      };
-
-      onBidsReceived([newBid]);
-    }
-  );
-};
-
-export const BroadcastUserJoinedRoom = (
-	setMembers: React.Dispatch<React.SetStateAction<string[]>>
-) => {
-	ClientConnection.off("UserJoinedRoom");
-	ClientConnection.on("UserJoinedRoom", (connectionId: string, groupName: string) => {
-		setMembers((prevMembers) => [...prevMembers, connectionId]);
-		console.log("User Joined a Room: " + groupName)
-	});
-};
-
-export const BroadcastUserLeftRoom = (
-	setMembers: React.Dispatch<React.SetStateAction<string[]>>
-) => {
-	ClientConnection.off("UserLeftRoom");
-	ClientConnection.on("UserLeftRoom", (connectionId: string, groupName: string) => {
-		setMembers((prevMembers) => prevMembers.filter((m) => m !== connectionId));
-	});
-};
+/**
+ * Override StopConnection
+ */
 function StopConnection(): void;
 function StopConnection(
-	setUsers: React.Dispatch<React.SetStateAction<ConnectedUsersDTO[]>>,
+	setUsers: React.Dispatch<React.SetStateAction<ConnectedUserDTO[]>>,
 	setInputCtrl: React.Dispatch<React.SetStateAction<boolean>>
 ):void;
 function StopConnection(
-	setUsers?: React.Dispatch<React.SetStateAction<ConnectedUsersDTO[]>>,
+	setUsers?: React.Dispatch<React.SetStateAction<ConnectedUserDTO[]>>,
 	setInputCtrl?: React.Dispatch<React.SetStateAction<boolean>>
 ):void{
 	if(ClientConnection.state !== signalR.HubConnectionState.Disconnected)

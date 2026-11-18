@@ -10,4 +10,8 @@ export interface ProductDTO {
 	productCategory?: CategoryDTO[];
 	seller?: SellerDTO;
 }
+export interface ProductListDTO
+{
+	products?: ProductDTO[]
+}
 

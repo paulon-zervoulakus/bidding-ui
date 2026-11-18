@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { AuctionRoomDTO, RoomProductDTO } from "../../../dto/auctionRoom";
-import { ProductDTO } from "../../../dto/product";
+import { ProductDTO, ProductListDTO } from "../../../dto/product";
 import { CreateAuctionRoom } from "../../../hooks/useAuctionRooms";
-import { GetAvailableProducts } from "../../../hooks/useProducts";
+import { GetAvailableProductsByUser } from "../../../hooks/useProducts";
 import { UserContext } from "../../../context/userContextProvider";
-import { RoomStatusEnum } from "../../../dto/common";
+import { RoomStatusEnum, RoomVisibilityEnum } from "../../../dto/common";
 
 interface CreateRoomFormProps {
 	room?: AuctionRoomDTO | null;
@@ -42,32 +42,58 @@ const CreateRoomForm: React.FC<CreateRoomFormProps> = ({ room, onClose, onSucces
 					title: "",
 					description: "",
 					status: RoomStatusEnum.active,
+					visibility: RoomVisibilityEnum.private,
 					createdAt: "",
 					memberCount: 1,
 					productCount: 0,
 					roomProducts: [],
 			  }
 	);
-	const [products, setProducts] = useState<ProductDTO[]>([]);
+	const [manageProducts, setManageProducts] = useState<ProductListDTO>({});
 	const [isPickerOpen, setIsPickerOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
-		GetAvailableProducts().then(setProducts).catch(() => setProducts([]));
-	}, []);
+		GetAvailableProductsByUser(async (data) => {
+			setManageProducts(data);
+		},(e) => console.log(e))
+	},[]);
+
+	const pickableProducts = useMemo(() => {
+
+		// console.table(
+		// 	formData.roomProducts?.map((rp) => ({
+		// 		id: rp.id,                          // join row ID
+		// 		productId: rp.productId,            // what goes into the Set
+		// 		title: rp.productDetails?.title,
+		// 	}))
+		// );
+		const taken = new Set(
+			formData.roomProducts?.map((rp) => rp.productId).filter((productId): productId is number => productId !== undefined)
+		);
+		const man = manageProducts.products?.filter((p) => p.id !== undefined && !taken.has(p?.id));
+
+		return man;
+	}, [manageProducts.products, formData.roomProducts]);
 
 	if (!canCreate) {
 		return null;
 	}
-
-	const roomProducts = formData.roomProducts ?? [];
-	const pickableProducts = products.filter(
-		(p) => !roomProducts.some((rp) => rp.productId === p.id)
+	const visibilityValues = Object.values(RoomVisibilityEnum).filter(
+		(v): v is RoomVisibilityEnum => typeof v === "number"
 	);
+	// -> [0, 1]
+
+	const visibilityLabels: Record<RoomVisibilityEnum, string> = {
+		[RoomVisibilityEnum.private]: "Private",
+		[RoomVisibilityEnum.public]: "Public",
+	};
+
+
 	// Rows already saved in the room may not be in the "available" list
 	const productTitle = (productId: number) =>
-		products.find((p) => p.id === productId)?.title ?? `Product #${productId}`;
+		manageProducts.products?.find((p) => p.id === productId)?.title ?? `Product #${productId}`;
 
 	const handleChange = (
 		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -108,12 +134,12 @@ const CreateRoomForm: React.FC<CreateRoomFormProps> = ({ room, onClose, onSucces
 	const removeRoomProduct = (productId: number) => {
 		setFormData((prev) => ({
 			...prev,
-			roomProduct: (prev.roomProducts ?? []).filter((rp) => rp.productId !== productId),
+			roomProducts: (prev.roomProducts ?? []).filter((rp) => rp.productId !== productId),
 		}));
 	};
 
 	const validateRoomProducts = (): string | null => {
-		for (const rp of roomProducts) {
+		for (const rp of formData.roomProducts ?? []) {
 			const name = productTitle(rp.productId);
 			if (!(rp.startingBidPrice > 0)) return `${name}: starting bid must be greater than 0.`;
 			if (!(rp.minimumBidIncrement > 0)) return `${name}: minimum bid must be greater than 0.`;
@@ -141,7 +167,8 @@ const CreateRoomForm: React.FC<CreateRoomFormProps> = ({ room, onClose, onSucces
 			title: formData.title,
 			description: formData.description,
 			status: formData.status,
-			roomProducts: roomProducts.map((rp) => ({
+			visibility: formData.visibility,
+			roomProducts: formData.roomProducts?.map((rp) => ({
 				productId: rp.productDetails?.id ?? 0,
 				startingBidPrice: rp.startingBidPrice,
 				lastBidPrice: rp.lastBidPrice,
@@ -229,13 +256,30 @@ const CreateRoomForm: React.FC<CreateRoomFormProps> = ({ room, onClose, onSucces
 							className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
 						/>
 					</div>
+					<div>
+						<label className="block text-sm font-medium text-gray-700 mb-1">Visibility</label>
+						<select
+							name="visibility"
+							value={formData.visibility}
+							onChange={(e) =>
+								setFormData((prev) => ({ ...prev, visibility: Number(e.target.value) as RoomVisibilityEnum }))
+							}
+							className={inputClass}
+						>
+							{visibilityValues.map((value) => (
+								<option key={value} value={value}>
+									{visibilityLabels[value]}
+								</option>
+							))}
+						</select>
+					</div>
 
 					{/* Room products */}
 					<div>
 						<div className="flex items-center justify-between mb-2">
 							<label className="text-sm font-medium text-gray-700">
 								Room Products{" "}
-								<span className="text-gray-400 font-normal">({roomProducts.length})</span>
+								<span className="text-gray-400 font-normal">({formData.roomProducts?.length})</span>
 							</label>
 							<button
 								type="button"
@@ -246,13 +290,13 @@ const CreateRoomForm: React.FC<CreateRoomFormProps> = ({ room, onClose, onSucces
 							</button>
 						</div>
 
-						{roomProducts.length === 0 ? (
+						{formData.roomProducts?.length === 0 ? (
 							<p className="text-sm text-gray-500 border border-dashed border-gray-300 rounded-lg px-3 py-4 text-center">
 								No products added yet.
 							</p>
 						) : (
 							<ul className="space-y-3">
-								{roomProducts.map((rp) => (
+								{formData.roomProducts?.map((rp) => (
 									<li key={rp.productId} className="rounded-lg border border-gray-200 p-3 min-w-0">
 										<div className="flex items-center justify-between gap-3 mb-2">
 											<p className="text-sm font-semibold text-gray-900 truncate">
@@ -319,6 +363,7 @@ const CreateRoomForm: React.FC<CreateRoomFormProps> = ({ room, onClose, onSucces
 													className={inputClass}
 												/>
 											</label>
+
 										</div>
 									</li>
 								))}
@@ -367,13 +412,13 @@ const CreateRoomForm: React.FC<CreateRoomFormProps> = ({ room, onClose, onSucces
 							</button>
 						</div>
 
-						{pickableProducts.length === 0 ? (
+						{pickableProducts?.length === 0 ? (
 							<p className="text-sm text-gray-500 text-center py-6">
-								{products.length === 0 ? "No available products." : "All available products are already added."}
+								{manageProducts.products?.length === 0 ? "No available products." : "All available products are already added."}
 							</p>
 						) : (
 							<ul className="flex-1 overflow-y-auto divide-y divide-gray-100 rounded-lg border border-gray-200">
-								{pickableProducts.map((p) => (
+								{pickableProducts?.map((p) => (
 									<li key={p.id} className="flex items-center justify-between gap-3 px-3 py-2 min-w-0">
 										<div className="min-w-0">
 											<p className="text-sm text-gray-900 truncate">{p.title}</p>

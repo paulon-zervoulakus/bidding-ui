@@ -24,5 +24,11 @@ export interface CategoryDTO {
 
 export interface SellerDTO {
 	id: number;
-	username: string;
+	userName: string;
+}
+
+export enum RoomVisibilityEnum
+{
+	private = 0,
+	public = 1
 }

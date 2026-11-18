@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import  {
-	StartConnection as SignalRStartConnection,
-	StopConnection as SignalRStopConnection,
-	BroadcastSendMessage
-} from "../../../hooks/signalRService";
-import {ConnectedUsersDTO, IncomingMessagesDTO } from "../../../dto/signalr";
+	StartConnection,
+	StopConnection,
+	InvokeSendLobbyMessage,
+	RegisterUpdateLobbyMessage,
+	RegisterUpdateLobbyOnlineUserList
+} from "../../../hooks/useSignalRServiceLobby";
+import { ConnectedUserDTO, IncomingMessagesDTO } from "../../../dto/auctionRoom";
 
 const Chatbox: React.FC = () => {
 
-	const [users, setUsers] = useState<ConnectedUsersDTO[]>([]);
+	const [users, setUsers] = useState<ConnectedUserDTO[]>([]);
 	const [incomingMessages, setIncomingMessages] = useState<
 		IncomingMessagesDTO[]
 	>([]);
@@ -23,17 +25,33 @@ const Chatbox: React.FC = () => {
 	}, [incomingMessages]);
 
 	useEffect(() => {
-		SignalRStartConnection(setUsers, setInputCtrl, setIncomingMessages);
+		RegisterUpdateLobbyMessage((dto: IncomingMessagesDTO) => {
+			setIncomingMessages((prev) => [
+				...prev,
+				dto
+			]);
 
-		window.addEventListener("beforeunload",	() => SignalRStopConnection(setUsers, setInputCtrl));
+		});
+		RegisterUpdateLobbyOnlineUserList(setUsers);
+		StartConnection(setInputCtrl);
+
+		window.addEventListener("beforeunload",	() => StopConnection(setUsers, setInputCtrl));
 
 		return () => {
-			SignalRStopConnection(setUsers, setInputCtrl);
+			StopConnection(setUsers, setInputCtrl);
 		};
 	}, []);
 
 	const sendMessage = async () => {
-		await BroadcastSendMessage(message, setMessage);
+		await InvokeSendLobbyMessage(message, (errMessage: string) => {
+			setIncomingMessages((prev) => [
+				...prev,
+				{
+					user: "System Message",
+  				message: errMessage
+				}
+			]);
+		});
 	}
 
 	return (
