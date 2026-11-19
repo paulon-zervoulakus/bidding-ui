@@ -1,17 +1,16 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { AuctionBidDTO, AuctionRoomDTO, RoomIndexDTO, RoomMember  } from "../../../dto/auctionRoom";
+import { AuctionBidDTO, AuctionRoomDTO, IncomingAuctionBidDTO, OutgoingAuctionBidDTO, RoomIndexDTO, RoomMember  } from "../../../dto/auctionRoom";
 import { GetAuctionRooms } from "../../../hooks/useAuctionRooms";
 import {
-  RegisterReceiveProductBid,
+  RegisterReceiveAuctionBid,
   RegisterUserJoinedRoom,
-  RegisterUserLeftRoom,
+  // RegisterUserLeftRoom,
   RegisterReceiveRoomMessage,
   InvokeSendProductBid,
   InvokeSendRoomMessage,
   InvokeJoinAuctionRoom,
   InvokeLeaveAuctionRoom,
-  EnsureConnection,
   StopConnection,
   StartConnection,
 } from "../../../hooks/useSignalRServiceRoom";
@@ -84,25 +83,28 @@ const AuctionRoomPage: React.FC = () => {
         // EnsureConnection().catch(console.error);
         // Listeners are registered immediately so nothing is missed while loading
         StartConnection();
-        RegisterReceiveProductBid((newBids: AuctionBidDTO[]) => {
+        RegisterReceiveAuctionBid((dto: AuctionBidDTO) => {
           if (cancelled) return;
-          setBids((prev) => [...newBids, ...prev].slice(0, 200));
+          setBids((prev) => [...[dto], ...prev].slice(0, 200));
           setRoom((prev) =>
             prev
               ? {
                   ...prev,
                   roomProducts: prev.roomProducts?.map((rp) => {
-                    const hit = newBids.find((b) => b.roomProductId === rp.productId);
-                    return hit ? { ...rp, lastBidPrice: hit.amount } : rp;
+                    const hit = dto.roomProductId === rp.productId;
+                    return hit ? { ...rp, lastBidPrice: dto.amount } : rp;
                   }),
                 }
               : prev
           );
         });
         RegisterUserJoinedRoom(setMembers);
-        RegisterUserLeftRoom(setMembers);
-        RegisterReceiveRoomMessage((m) => {
-          if (!cancelled) setChat((prev) => [...prev, m].slice(-200));
+        // RegisterUserLeftRoom(setMembers);
+        RegisterReceiveRoomMessage((user: string, message: string) => {
+
+          if (!cancelled)
+            setChat((prev) =>
+              [...prev, {user, message}]);
         });
         // Join even when there are no products yet, so chat and presence still work
         roomIndex = {
@@ -140,12 +142,17 @@ const AuctionRoomPage: React.FC = () => {
 
   const handleBid = async (amount: number) => {
     if (!room || activeProductId === null) return;
-    await InvokeSendProductBid(room.groupName, activeProductId, amount);
+
+    const _out: OutgoingAuctionBidDTO = {
+      amount:amount,
+      roomProductId: activeProductId
+    };
+    await InvokeSendProductBid(_out);
   };
 
   const handleSendMessage = async (text: string) => {
     if (!room) return;
-    await InvokeSendRoomMessage(room.groupName, text);
+    await InvokeSendRoomMessage(room.id, room.groupName, text);
   };
 
   if (loading) {

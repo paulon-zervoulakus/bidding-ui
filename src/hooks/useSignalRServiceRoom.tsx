@@ -1,7 +1,7 @@
 import * as signalR from "@microsoft/signalr";
 import GetCookie from "../helper/account";
 import { SetStateAction } from "react";
-import { RoomIndexDTO, AuctionBidDTO, ConnectedUserDTO, RoomMember } from "../dto/auctionRoom";
+import { RoomIndexDTO, ConnectedUserDTO, RoomMember, OutgoingAuctionBidDTO, AuctionBidDTO, IncomingAuctionBidDTO } from "../dto/auctionRoom";
 
 const ClientConnection = new signalR.HubConnectionBuilder()
   .withUrl(__API_URL__ + "/subastaHub/room", {
@@ -43,19 +43,19 @@ const retain = () => {
     stopTimer = null;
   }
 };
-const ReleaseConnection = (): void => {
-  consumers = Math.max(0, consumers - 1);
-  if (consumers === 0 && !stopTimer) {
-    stopTimer = setTimeout(() => {
-      stopTimer = null;
-      if (consumers === 0) StopConnection();
-    }, 1000);
-  }
-};
-const AcquireConnection = (): Promise<void> => {
-  retain();
-  return EnsureConnection();
-};
+// const ReleaseConnection = (): void => {
+//   consumers = Math.max(0, consumers - 1);
+//   if (consumers === 0 && !stopTimer) {
+//     stopTimer = setTimeout(() => {
+//       stopTimer = null;
+//       if (consumers === 0) StopConnection();
+//     }, 1000);
+//   }
+// };
+// const AcquireConnection = (): Promise<void> => {
+//   retain();
+//   return EnsureConnection();
+// };
 
 //=============   Received  ==================
 
@@ -63,52 +63,53 @@ const AcquireConnection = (): Promise<void> => {
  *
  * @param onBidsReceived
  */
-const RegisterReceiveProductBid = (
-  onBidsReceived: (newBids: AuctionBidDTO[]
-) => void) => {
-  ClientConnection.off("ReceiveProductBid");
-  ClientConnection.on("ReceiveProductBid", (roomId: number, roomProductId: number, bidder: string, amount: number) => {
-    onBidsReceived([{ roomId, roomProductId, bidder, amount, timestamp: new Date().toISOString() }]);
+const RegisterReceiveAuctionBid = (
+  onBidsReceived: (updatedRoom: AuctionBidDTO) => void
+) => {
+  ClientConnection.off("ReceiveAuctionBid");
+  ClientConnection.on("ReceiveAuctionBid", (
+    dto: AuctionBidDTO
+  ) => {
+    onBidsReceived({
+      ...dto,
+      timestamp: dto.timestamp ?? new Date().toISOString()
+    });
   });
 };
 const RegisterUserJoinedRoom = (
   setMembers: React.Dispatch<SetStateAction<RoomMember[]>>
 ) => {
-  ClientConnection.off("UserJoinedRoom");
+  ClientConnection.off("UpdateRoomOnlineUsersList");
   ClientConnection.on(
-    "UserJoinedRoom",
-    (connectionId: string, groupName: string, user: ConnectedUserDTO) => {
-      console.log(groupName, user);
-      setMembers((prev) =>
-        prev.some((m) => m.connectionId === connectionId)
-          ? prev                                  // no duplicates after a reconnect
-          : [...prev, { ...user, connectionId, groupName }]
-      );
+    "UpdateRoomOnlineUsersList",
+    (members: RoomMember[]) => {
+      setMembers( members );
     }
   );
 };
-const RegisterUserLeftRoom = (
-  setMembers: React.Dispatch<React.SetStateAction<RoomMember[]>>
+// const RegisterUserLeftRoom = (
+//   setMembers: React.Dispatch<React.SetStateAction<RoomMember[]>>
+// ) => {
+//   ClientConnection.off("UserLeftRoom");
+//   ClientConnection.on("UserLeftRoom", (connectionId: string, groupName: string, user: ConnectedUserDTO) => {
+//     setMembers((prev) =>
+//       prev.filter((m) => m.connectionId !== connectionId && m.groupName !== groupName));
+//   });
+// };
+const RegisterReceiveRoomMessage = (
+  onMessage: ( user: string, message: string ) => void
 ) => {
-  ClientConnection.off("UserLeftRoom");
-  ClientConnection.on("UserLeftRoom", (connectionId: string, groupName: string, user: ConnectedUserDTO) => {
-    setMembers((prev) =>
-      prev.filter((m) => m.connectionId !== connectionId && m.groupName !== groupName));
-  });
-};
-const RegisterReceiveRoomMessage = (onMessage: (m: { user: string; message: string }) => void) => {
   ClientConnection.off("ReceiveRoomMessage");
-  ClientConnection.on("ReceiveRoomMessage", (user: string, message: string) => onMessage({ user, message }));
+  ClientConnection.on("ReceiveRoomMessage", (user: string, message: string) =>
+    onMessage(user, message ));
 };
 const InvokeSendProductBid = (
-  groupName: string,
-  roomProductId: number,
-  amount: number,
+  dto: OutgoingAuctionBidDTO
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
     if (ClientConnection.state === signalR.HubConnectionState.Connected) {
       ClientConnection
-        .invoke("SendProductBid", groupName, roomProductId, amount)
+        .invoke("SendProductBid", dto )
         .then(() => {
           resolve();
         })
@@ -121,8 +122,22 @@ const InvokeSendProductBid = (
     }
   });
 };
-const InvokeSendRoomMessage = (groupName: string, message: string): Promise<void> =>
-  ClientConnection.invoke("SendRoomMessage", groupName, message);
+const InvokeSendRoomMessage = (roomId: number, groupName: string, message: string): Promise<void> =>
+{
+  return new Promise((resolve, reject) => {
+    if (ClientConnection.state === signalR.HubConnectionState.Connected) {
+      ClientConnection
+        .invoke("SendRoomMessage", roomId, groupName, message)
+        .then(() => resolve())
+        .catch((err) => {
+          console.log("Error sending message: ", err);
+          reject(new Error(err));
+        });
+      } else {
+        reject( new Error("SignalR connection not available"));
+      }
+  });
+}
 
 const InvokeJoinAuctionRoom = async (
   room: RoomIndexDTO
@@ -201,8 +216,8 @@ export {
   InvokeJoinAuctionRoom,
   InvokeLeaveAuctionRoom,
   // Broadcast
-  RegisterReceiveProductBid,
+  RegisterReceiveAuctionBid,
   RegisterUserJoinedRoom,
-  RegisterUserLeftRoom,
+  // RegisterUserLeftRoom,
   RegisterReceiveRoomMessage,
 };
