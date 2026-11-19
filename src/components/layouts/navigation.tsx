@@ -102,6 +102,11 @@ export default function Navigation() {
 									</NavLink>
 								</li>
 							)}
+							{user?.isLoggedIn && (
+								<li>
+									<span className="text-yellow-200 text-sm">({user?.fullName})</span>
+								</li>
+							)}
 						</ul>
 
 						<div className="flex flex-col gap-3 md:flex-row md:items-center">
