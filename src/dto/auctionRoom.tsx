@@ -63,8 +63,10 @@ export interface ConnectedUserDTO
   avatarSrc: string;  // The URL of the user's avatar image
 }
 export type RoomMember = ConnectedUserDTO & {
-  connectionId: string,
-  groupName: string
+  connectionId?: string,
+  groupName?: string,
+  roomId?: number,
+  userId?: number
 };
 
 export interface IncomingMessagesDTO {
@@ -77,5 +79,14 @@ export interface AuctionBidDTO
   roomId: number;
   amount: number;
   bidder: string;
-  timestamp: string;
+  timestamp?: string;
+}
+export interface IncomingAuctionBidDTO extends AuctionBidDTO
+{
+  room: AuctionRoomDTO;
+}
+export interface OutgoingAuctionBidDTO
+{
+  roomProductId: number;
+  amount: number
 }
