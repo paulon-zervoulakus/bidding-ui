@@ -1,6 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 import GetCookie from "../helper/account";
-import { BidDTO, ConnectedUserDTO, IncomingMessagesDTO, RoomMember } from "../dto/signalr";
+import { AuctionBidDTO, ConnectedUserDTO, IncomingMessagesDTO, RoomMember } from "../dto/auctionRoom";
 import { AuctionRoomDTO } from "../dto/auctionRoom";
 import { AppDispatch } from "../store/store";
 import { updateAuctionRoom } from "../store/bidding/biddingSlice";
@@ -90,7 +90,7 @@ export const BroadcastUpdateOnlineUserList = (
 ) => {
 	ClientConnection.on(
 		"UpdateOnlineUsersList",
-		(userList: any[]) => {
+		(userList: ConnectedUserDTO[]) => {
 			setUsers(userList);
 		}
 	);
@@ -173,7 +173,7 @@ export const SendBid = (
 };
 
 export const BroadcastReceiveProductBid = (
-	onBidsReceived: (newBids: BidDTO[]
+	onBidsReceived: (newBids: AuctionBidDTO[]
 ) => void) => {
   ClientConnection.off("ReceiveBid");
   ClientConnection.on("ReceiveBid", (roomId: number, roomProductId: number, bidder: string, amount: number) => {
@@ -202,7 +202,7 @@ export const BroadcastUserLeftRoom = (
 	setMembers: React.Dispatch<React.SetStateAction<RoomMember[]>>
 ) => {
 	ClientConnection.off("UserLeftRoom");
-	ClientConnection.on("UserLeftRoom", (connectionId: string, groupName: string, user: ConnectedUserDTO) => {
+	ClientConnection.on("UserLeftRoom", (connectionId: string, groupName: string) => {
 		setMembers((prev) =>
 			prev.filter((m) => m.connectionId !== connectionId && m.groupName !== groupName));
 	});

@@ -200,7 +200,7 @@ const RegisterUpdateLobbyOnlineUserList = (
 ) => {
   ClientConnection.on(
     "UpdateLobbyOnlineUsersList",
-    (userList: any[]) => {
+    (userList: ConnectedUserDTO[]) => {
       setUsers(userList);
     }
   );

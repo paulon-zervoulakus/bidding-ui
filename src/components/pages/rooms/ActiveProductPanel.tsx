@@ -1,7 +1,7 @@
-import { RoomProductDTO } from "../../../dto/auctionRoom";
-import { BidDTO } from "../../../dto/signalr";
+import { AuctionBidDTO, RoomProductDTO } from "../../../dto/auctionRoom";
 import { formatPrice, getPhase, productTitle } from "../../../helper/auctionRoom";
 import { formatRemaining, parseUtc } from "../../../helper/isoString";
+import { FlashWrap } from "../../wrapper/FlashWrap";
 import { BidForm } from "./BidForm";
 import { PhaseBadge } from "./PhaseBadge";
 
@@ -9,7 +9,7 @@ export const ActiveProductPanel: React.FC<{
   product: RoomProductDTO;
   now: number;
   canBid: boolean;
-  bids: BidDTO[];
+  bids: AuctionBidDTO[];
   onBid: (amount: number) => Promise<void>;
 }> = ({ product, now, canBid, bids, onBid }) => {
   const phase = getPhase(product, now);
@@ -36,7 +36,7 @@ export const ActiveProductPanel: React.FC<{
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
         <div className="rounded-lg bg-indigo-50 p-4">
           <p className="text-xs text-indigo-700">Last bid</p>
-          <p className="text-2xl font-bold text-indigo-700 mt-1">{formatPrice(product.lastBidPrice)}</p>
+          <p className="text-2xl font-bold text-indigo-700 mt-1"><FlashWrap value={formatPrice(product.lastBidPrice)} /></p>
         </div>
         <div className="rounded-lg bg-gray-50 p-4">
           <p className="text-xs text-gray-500">Starting bid</p>

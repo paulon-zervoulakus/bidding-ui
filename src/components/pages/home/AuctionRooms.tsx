@@ -67,7 +67,7 @@ const AuctionRooms: React.FC = () => {
 			// UnregisterUpdateLobbyAuctionRoom();
 			ReleaseConnection();
 		};
-	}, [dispatch]);
+	}, [dispatch, currentUserId]);
 	return (
 		<div>
 			<RoomList
