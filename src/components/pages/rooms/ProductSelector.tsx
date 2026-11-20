@@ -1,5 +1,6 @@
 import { RoomProductDTO } from "../../../dto/auctionRoom";
 import { formatPrice, getPhase, productTitle } from "../../../helper/auctionRoom";
+import { FlashWrap } from "../../wrapper/FlashWrap";
 import { PhaseBadge } from "./PhaseBadge";
 
 export const ProductSelector: React.FC<{
@@ -34,7 +35,7 @@ export const ProductSelector: React.FC<{
                 <PhaseBadge phase={getPhase(rp, now)} />
               </div>
               <p className="text-xl font-bold text-indigo-600 mt-2">
-                {formatPrice(rp.lastBidPrice)}
+                <FlashWrap value={formatPrice(rp.lastBidPrice)} />
               </p>
               <p className="text-xs text-gray-500">Last bid</p>
             </button>

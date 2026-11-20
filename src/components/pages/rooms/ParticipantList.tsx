@@ -1,4 +1,4 @@
-import { RoomMember } from "../../../dto/signalr";
+import { RoomMember } from "../../../dto/auctionRoom";
 
 export const ParticipantList: React.FC<{ members: RoomMember[] }> = ({ members }) => (
   <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
@@ -12,7 +12,7 @@ export const ParticipantList: React.FC<{ members: RoomMember[] }> = ({ members }
     ) : (
       <ul className="max-h-48 overflow-y-auto divide-y divide-gray-100">
         {members.map((m) => (
-          <li key={m.connectionId} className="flex items-center gap-2 py-2 min-w-0">
+          <li key={m.userId} className="flex items-center gap-2 py-2 min-w-0">
             <span className="w-7 h-7 shrink-0 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold flex items-center justify-center">
               {(m.fullname || "?").charAt(0).toUpperCase()}
             </span>

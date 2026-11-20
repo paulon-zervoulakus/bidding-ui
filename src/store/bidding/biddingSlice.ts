@@ -22,7 +22,7 @@ const biddingSlice = createSlice({
 
       const isNotHost = userId !== undefined && room.hostId !== userId;
       // TODO: replace 'isPrivate' with your actual visibility field (e.g. room.visibility === 'private')
-      const isPrivate = (room as any).visibility == RoomVisibilityEnum.private ? true : false;
+      const isPrivate = room.visibility == RoomVisibilityEnum.private ? true : false;
 
        if (index !== -1) {
         // Room already in state
