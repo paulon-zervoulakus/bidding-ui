@@ -1,7 +1,7 @@
 import UserContextProvider from "./context/userContextProvider";
 import Layout from "./components/layout";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import HomeIndex from "./components/pages/home/Index";
+import HomeIndex from "./components/pages/home/IndexTest";
 import PrivateRoute from "./components/routing/PrivateRoute";
 import Login from "./components/pages/authentication/Login";
 import Register from "./components/pages/registration/Register";
