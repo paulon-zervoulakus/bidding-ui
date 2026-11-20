@@ -2,7 +2,7 @@ import { SessionResponse, User } from "../state/userState";
 import { BasicProfileDTO } from "../dto/account";
 
 /* eslint-disable react-refresh/only-export-components */
-export const PingSessionStatus = async (): Promise<
+export const pingSessionStatus = async (): Promise<
 	SessionResponse | undefined
 > => {
 	try {
