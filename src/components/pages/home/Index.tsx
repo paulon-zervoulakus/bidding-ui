@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import ProductList from "./ProductListTest";
-import Chatbox from "./ChatboxTest";
+import ProductList from "./ProductList";
+import Chatbox from "./Chatbox";
 import AuctionRooms from "./AuctionRooms";
 import CreateProductForm from "./CreateProductForm";
 import { UserContext } from "../../../context/userContextProvider";
