@@ -1,7 +1,7 @@
 import * as signalR from "@microsoft/signalr";
 import GetCookie from "../helper/account";
 import { SetStateAction } from "react";
-import { RoomIndexDTO, ConnectedUserDTO, RoomMember, OutgoingAuctionBidDTO, AuctionBidDTO, IncomingAuctionBidDTO } from "../dto/auctionRoom";
+import { RoomIndexDTO, ConnectedUserDTO, RoomMember, OutgoingAuctionBidDTO, AuctionBidDTO } from "../dto/auctionRoom";
 
 const ClientConnection = new signalR.HubConnectionBuilder()
   .withUrl(__API_URL__ + "/subastaHub/room", {

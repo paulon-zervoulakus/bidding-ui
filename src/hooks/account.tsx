@@ -1,8 +1,8 @@
 import { SessionResponse, User } from "../state/userState";
-// import { StopConnection as SignalRStopConnection } from "./signalRService";
 import { BasicProfileDTO } from "../dto/account";
 
-export const pingSessionStatus = async (): Promise<
+/* eslint-disable react-refresh/only-export-components */
+export const PingSessionStatus = async (): Promise<
 	SessionResponse | undefined
 > => {
 	try {

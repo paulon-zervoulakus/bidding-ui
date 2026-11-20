@@ -4,7 +4,6 @@ import { Settings } from "lucide-react";
 import { useFlashOnChange } from "../../../hooks/useFlashOnChange";
 import { FlashWrap } from "../../wrapper/FlashWrap";
 import { BidCountdown } from "../../wrapper/BidCounter";
-import { parseUtc } from "../../../helper/isoString";
 interface RoomCardProps {
   room: AuctionRoomDTO;
   currentUserId?: number;
@@ -20,7 +19,6 @@ interface RoomCardProps {
 
 const RoomCard: React.FC<RoomCardProps> = ({
   room,
-  currentUserId,
   onJoin,
   onSubscribe,
   onUnsubscribe,

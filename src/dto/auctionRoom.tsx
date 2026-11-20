@@ -53,7 +53,7 @@ export interface RoomIndexDTO
     roomId: number;
     groupName: string;
 }
-export interface RoomIndexListDTO extends RoomIndexDTO{}[];
+export type RoomIndexListDTO = RoomIndexDTO[];
 
 // Define the ConnectedUsersDTO interface
 export interface ConnectedUserDTO

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { AuctionBidDTO, AuctionRoomDTO, IncomingAuctionBidDTO, OutgoingAuctionBidDTO, RoomIndexDTO, RoomMember  } from "../../../dto/auctionRoom";
+import { AuctionBidDTO, AuctionRoomDTO, OutgoingAuctionBidDTO, RoomIndexDTO, RoomMember  } from "../../../dto/auctionRoom";
 import { GetAuctionRooms } from "../../../hooks/useAuctionRooms";
 import {
   RegisterReceiveAuctionBid,
