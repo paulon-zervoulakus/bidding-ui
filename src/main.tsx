@@ -9,11 +9,11 @@ import { PersistGate } from 'redux-persist/integration/react'
 // import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 createRoot(document.getElementById('root')!).render(
-    <StrictMode>
+    // <StrictMode>
         <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
                 <App />
             </PersistGate>
         </Provider>
-    </StrictMode>,
+    // </StrictMode>,
 )
