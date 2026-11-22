@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AuctionBidDTO, AuctionRoomDTO, OutgoingAuctionBidDTO, RoomIndexDTO, RoomMember  } from "../../../dto/auctionRoom";
-import { GetAuctionRooms } from "../../../hooks/useAuctionRooms";
+import { GetAuctionRoomById } from "../../../hooks/useAuctionRooms";
 import {
   RegisterReceiveAuctionBid,
   RegisterUserJoinedRoom,
@@ -22,6 +22,7 @@ import { ProductSelector } from "./ProductSelector";
 import { ActiveProductPanel } from "./ActiveProductPanel";
 import { ParticipantList } from "./ParticipantList";
 import { ChatPanel } from "./ChatPanel";
+import { EnsureConnection } from "../../../hooks/useSignalRServiceRoom";
 
 
 const AuctionRoomPage: React.FC = () => {
@@ -29,6 +30,7 @@ const AuctionRoomPage: React.FC = () => {
   const navigate = useNavigate();
   const context = useContext(UserContext);
   const me = context?.user?.fullName ?? "";
+  const started = useRef(false);
 
   const [room, setRoom] = useState<AuctionRoomDTO | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,10 +70,7 @@ const AuctionRoomPage: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        const rooms = await GetAuctionRooms();
-        if (cancelled) return;
-
-        const room = rooms.find((r) => r.id === Number(roomId));
+        const room = await GetAuctionRoomById(Number(roomId));
 
         if (!room) {
           setError("Room not found");
@@ -79,13 +78,26 @@ const AuctionRoomPage: React.FC = () => {
         }
 
         setRoom(room);
+        setBids(
+          (room.roomProducts ?? [])
+            .flatMap((rp) =>
+              (rp.bidHistory ?? []).map((b) => ({
+                roomProductId: rp.productId,       // same ID the live handler and the product filter use
+                bidder: b.currentBidder.fullName ?? "",
+                amount: b.bid ?? 0,
+                timestamp: b.bidTimestamp ?? "",
+                roomId: room.id
+              }))
+            )
+            .sort((a, b) => b.timestamp?.localeCompare(a.timestamp))   // newest first
+        );
         setActiveProductId(room.roomProducts?.[0]?.productId ?? null);
-        // EnsureConnection().catch(console.error);
+        EnsureConnection().catch(console.error);
         // Listeners are registered immediately so nothing is missed while loading
         StartConnection();
         RegisterReceiveAuctionBid((dto: AuctionBidDTO) => {
           if (cancelled) return;
-          setBids((prev) => [...[dto], ...prev].slice(0, 200));
+          setBids((prev) => [...[dto], ...prev]);
           setRoom((prev) =>
             prev
               ? {
@@ -130,6 +142,9 @@ const AuctionRoomPage: React.FC = () => {
     loadRoom();
 
     return () => {
+      if (started.current) return; // skip duplicate StrictMode invocation
+      started.current = true;
+
       cancelled = true;
       if (roomIndex) InvokeLeaveAuctionRoom(roomIndex).catch(() => {});
       StopConnection();
@@ -147,6 +162,7 @@ const AuctionRoomPage: React.FC = () => {
       amount:amount,
       roomProductId: activeProductId
     };
+    console.log(_out);
     await InvokeSendProductBid(_out);
   };
 

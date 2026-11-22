@@ -34,6 +34,22 @@ export interface RoomProductDTO
     startingBidTime: string;
     endBidTime: string;
     productDetails: ProductDTO;
+    bidHistory?: BidHistoryDTO[];
+}
+export interface BidHistoryDTO
+{
+  id: number;
+  bid: number;
+  bidTimestamp: string;
+  auctionRoomProductId: number;
+  currentBidder: CurrentBidder
+}
+export interface CurrentBidder
+{
+  id: number;
+  userName: string;
+  email: string;
+  fullName: string;
 }
 export interface CreateEditAuctionRoomRequestDTO
 {

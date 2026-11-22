@@ -90,8 +90,8 @@ const RegisterUserJoinedRoom = (
 // const RegisterUserLeftRoom = (
 //   setMembers: React.Dispatch<React.SetStateAction<RoomMember[]>>
 // ) => {
-//   ClientConnection.off("UserLeftRoom");
-//   ClientConnection.on("UserLeftRoom", (connectionId: string, groupName: string, user: ConnectedUserDTO) => {
+//   ClientConnection.off("UpdateRoomOnlineUsersList");
+//   ClientConnection.on("UpdateRoomOnlineUsersList", (connectionId: string, groupName: string, user: ConnectedUserDTO) => {
 //     setMembers((prev) =>
 //       prev.filter((m) => m.connectionId !== connectionId && m.groupName !== groupName));
 //   });
