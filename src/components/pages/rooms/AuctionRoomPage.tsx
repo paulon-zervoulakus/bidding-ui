@@ -71,7 +71,6 @@ const AuctionRoomPage: React.FC = () => {
         setError(null);
 
         const room = await GetAuctionRoomById(Number(roomId));
-
         if (!room) {
           setError("Room not found");
           return;
@@ -162,7 +161,6 @@ const AuctionRoomPage: React.FC = () => {
       amount:amount,
       roomProductId: activeProductId
     };
-    console.log(_out);
     await InvokeSendProductBid(_out);
   };
 
