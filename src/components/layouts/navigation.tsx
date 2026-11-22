@@ -9,7 +9,13 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 			? "bg-gray-800 text-white"
 			: "text-gray-300 hover:bg-gray-800 hover:text-white"
 	}`;
-
+export enum RolesTypes {
+    None = 0,
+    Guest = 1,
+    Member = 2,
+    Administrator = 4,
+    Seller = 8
+}
 export default function Navigation() {
 	const [isOpen, setIsOpen] = useState(false);
 	const [query, setQuery] = useState("");
@@ -17,7 +23,9 @@ export default function Navigation() {
 	const { pathname } = useLocation();
 	const context = useContext(UserContext);
 	const { setUser, user } = context || {};
-
+	const getRole = (role: number): string => {
+    return RolesTypes[role] ?? "Unknown";
+	};
 	const logout = () => {
 		if (setUser) {
 			localStorage.setItem("logout", Date.now().toString()); // Notify other tabs
@@ -104,7 +112,7 @@ export default function Navigation() {
 							)}
 							{user?.isLoggedIn && (
 								<li>
-									<span className="text-yellow-200 text-sm">({user?.fullName})</span>
+									<span className="text-yellow-200 text-sm">{user?.fullName}({getRole(user?.role)})</span>
 								</li>
 							)}
 						</ul>

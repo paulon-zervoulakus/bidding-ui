@@ -187,7 +187,6 @@ const RegisterUpdateLobbyAuctionRoomDetails = async (
   ClientConnection.on(
     "UpdateLobbyAuctionRoomDetails",
     (room: AuctionRoomDTO) => {
-      console.table(room)
       onRegisterUpdateLobbyAuctionRoom?.(room);
     }
   );

@@ -17,8 +17,8 @@ const ProfileForm: React.FC = () => {
 		email: '',
 		fullName: '',
 		dateOfBirth: '',
-		role: 4, // Default role, e.g., Guest
-		gender: 3, // Default gender value
+		role: 1, // Default role, e.g., Guest
+		gender: 2, // Default gender value
 	} as BasicProfileDTO);
 
 	const handleChange = (e: { target: { name: string; value: string; }; }) => {
@@ -138,8 +138,8 @@ const ProfileForm: React.FC = () => {
 					>
 						<option value={1}>Guest</option>
 						<option value={2}>Member</option>
-						<option value={3}>Administrator</option>
-						<option value={4}>Seller</option>
+						<option value={4}>Administrator</option>
+						<option value={8}>Seller</option>
 					</select>
 				</div>
 
