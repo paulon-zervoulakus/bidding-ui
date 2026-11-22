@@ -114,8 +114,11 @@ const InvokeSendProductBid = (
           resolve();
         })
         .catch((err) => {
-          console.error("Error sending bid: ", err);
-          reject(new Error(err));
+          reject(new Error(
+            err?.message?.includes("Unauthorized")
+              ? "You are not authorized to place a bid."
+              : "Unable to submit your bid."
+          ));
         });
     } else {
       reject(new Error("SignalR connection not available"));

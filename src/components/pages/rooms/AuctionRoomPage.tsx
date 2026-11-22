@@ -162,7 +162,6 @@ const AuctionRoomPage: React.FC = () => {
       amount:amount,
       roomProductId: activeProductId
     };
-    console.log(_out);
     await InvokeSendProductBid(_out);
   };
 
