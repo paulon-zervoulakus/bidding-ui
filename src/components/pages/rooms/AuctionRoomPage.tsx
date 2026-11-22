@@ -71,7 +71,6 @@ const AuctionRoomPage: React.FC = () => {
         setError(null);
 
         const room = await GetAuctionRoomById(Number(roomId));
-
         if (!room) {
           setError("Room not found");
           return;
