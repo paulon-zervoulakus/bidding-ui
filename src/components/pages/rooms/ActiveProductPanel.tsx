@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AuctionBidDTO, RoomProductDTO } from "../../../dto/auctionRoom";
 import { formatPrice, getPhase, productTitle } from "../../../helper/auctionRoom";
 import { formatRemaining, parseUtc } from "../../../helper/isoString";
@@ -15,6 +16,13 @@ export const ActiveProductPanel: React.FC<{
   const phase = getPhase(product, now);
   const startMs = parseUtc(product.startingBidTime).getTime();
   const endMs = parseUtc(product.endBidTime).getTime();
+
+  const INITIAL_BIDS = 5;
+  const MAX_BIDS = 20;
+  // inside the component
+  const [showAll, setShowAll] = useState(false);
+  const visibleBids = bids.slice(0, showAll ? MAX_BIDS : INITIAL_BIDS);
+  const hasMore = bids.length > INITIAL_BIDS;
 
   return (
     <section className="bg-white rounded-xl shadow-sm border border-indigo-200 p-4 sm:p-6">
@@ -75,14 +83,30 @@ export const ActiveProductPanel: React.FC<{
         {bids.length === 0 ? (
           <p className="text-sm text-gray-400">No bids yet.</p>
         ) : (
-          <ul className="divide-y divide-gray-100 rounded-lg border border-gray-200">
-            {bids.slice(0, 5).map((bid, i) => (
-              <li key={`${bid.timestamp}-${i}`} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
-                <span className="truncate text-gray-700">{bid.bidder}</span>
-                <span className="shrink-0 font-semibold text-indigo-600">{formatPrice(bid.amount)}</span>
-              </li>
-            ))}
-          </ul>
+          <>
+            <ul className="divide-y divide-gray-100 rounded-lg border border-gray-200">
+              {visibleBids.map((bid, i) => (
+                <li key={`${bid.timestamp}-${i}`} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                  <div className="min-w-0">
+                    <span className="block truncate text-gray-700">{bid.bidder}</span>
+                    <time dateTime={new Date(bid.timestamp ?? "").toISOString()} className="block text-xs text-gray-400">
+                      {new Date(bid.timestamp ?? "").toLocaleString()}
+                    </time>
+                  </div>
+                  <span className="shrink-0 font-semibold text-indigo-600">{formatPrice(bid.amount)}</span>
+                </li>
+              ))}
+            </ul>
+            {hasMore && (
+              <button
+                type="button"
+                onClick={() => setShowAll((v) => !v)}
+                className="mt-2 w-full text-center text-sm font-medium text-indigo-600 hover:text-indigo-700"
+              >
+                {showAll ? "Show less" : `Show more (${Math.min(bids.length, MAX_BIDS) - INITIAL_BIDS})`}
+              </button>
+            )}
+          </>
         )}
       </div>
     </section>

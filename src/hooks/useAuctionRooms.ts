@@ -41,6 +41,23 @@ import { ProductDTO } from "../dto/product";
 // 		return data.rooms ?? [];
 // };
 
+export const GetAuctionRoomById = async (
+	roomId: number,
+	onGetAuctionRoomById?: (data: AuctionRoomDTO) => void
+): Promise<AuctionRoomDTO | null> => {
+	const res = await fetch(`${__API_URL__}/api/AuctionRooms/get-room/${roomId}`, {
+			method: "GET",
+			credentials: "include",
+		});
+
+		if (!res.ok) return null;
+
+		const data: AuctionRoomDTO = await res.json();
+
+		onGetAuctionRoomById?.(data);
+		return data ?? null;
+}
+
 export const GetAuctionRooms = async (
 	onGetAuctonRooms?: (data: AuctionRoomDTO[]) => void
 ): Promise<AuctionRoomDTO[]> => {
