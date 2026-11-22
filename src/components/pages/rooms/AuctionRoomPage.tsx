@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AuctionBidDTO, AuctionRoomDTO, OutgoingAuctionBidDTO, RoomIndexDTO, RoomMember  } from "../../../dto/auctionRoom";
-import { GetAuctionRoomById, GetAuctionRooms } from "../../../hooks/useAuctionRooms";
+import { GetAuctionRoomById } from "../../../hooks/useAuctionRooms";
 import {
   RegisterReceiveAuctionBid,
   RegisterUserJoinedRoom,
