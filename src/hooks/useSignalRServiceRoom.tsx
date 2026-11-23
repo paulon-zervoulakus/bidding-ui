@@ -2,6 +2,7 @@ import * as signalR from "@microsoft/signalr";
 import GetCookie from "../helper/account";
 import { SetStateAction } from "react";
 import { RoomIndexDTO, ConnectedUserDTO, RoomMember, OutgoingAuctionBidDTO, AuctionBidDTO } from "../dto/auctionRoom";
+import { extractHubExceptionMessage } from "../helper/auctionRoom";
 
 const ClientConnection = new signalR.HubConnectionBuilder()
   .withUrl(__API_URL__ + "/subastaHub/room", {
@@ -115,9 +116,9 @@ const InvokeSendProductBid = (
         })
         .catch((err) => {
           reject(new Error(
-            err?.message?.includes("Unauthorized")
-              ? "You are not authorized to place a bid."
-              : "Unable to submit your bid."
+            err?.message?.includes("HubException: ")
+              ? extractHubExceptionMessage(err.message)
+              : err.message || "Failed to send bid."
           ));
         });
     } else {
