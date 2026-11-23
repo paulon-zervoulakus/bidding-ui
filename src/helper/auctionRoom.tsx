@@ -27,3 +27,11 @@ export const phaseStyle: Record<Phase, { label: string; className: string }> = {
   live: { label: "Live", className: "bg-green-100 text-green-700" },
   ended: { label: "Ended", className: "bg-gray-100 text-gray-600" },
 };
+
+export const extractHubExceptionMessage = (message: string): string => {
+  const prefix = "HubException: ";
+  const index = message.indexOf(prefix);
+  if (index === -1) return message;
+
+  return message.substring(index + prefix.length).trim();
+};
