@@ -16,6 +16,9 @@ export const ActiveProductPanel: React.FC<{
   const phase = getPhase(product, now);
   const startMs = parseUtc(product.startingBidTime).getTime();
   const endMs = parseUtc(product.endBidTime).getTime();
+  const remainingMs = (phase === "live" ? endMs : startMs) - now;
+  const isUrgent = phase === "live" && remainingMs <= 30_000;
+  const isCritical = phase === "live" && remainingMs <= 30_000;
 
   const INITIAL_BIDS = 5;
   const MAX_BIDS = 20;
@@ -68,12 +71,29 @@ export const ActiveProductPanel: React.FC<{
       </div>
 
       {phase !== "ended" && (
-        <p className={`mt-3 text-sm font-semibold ${phase === "live" ? "text-green-700" : "text-amber-700"}`}>
-          {phase === "live" ? "Ends in " : "Starts in "}
-          <span className="font-mono tabular-nums">
-            {formatRemaining((phase === "live" ? endMs : startMs) - now)}
-          </span>
-        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <p
+            className={`text-sm font-semibold ${
+              phase === "live"
+                ? isCritical
+                  ? "text-red-600 animate-heartbeat"
+                  : isUrgent
+                    ? "text-red-600"
+                    : "text-green-700"
+                : "text-amber-700"
+            }`}
+          >
+            {phase === "live" ? "Ends in " : "Starts in "}
+            <span className="font-mono tabular-nums">
+              {formatRemaining(remainingMs)}
+            </span>
+          </p>
+          {phase === "live" && product.endBidTimeExtended && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
+              ⏱ Extended
+            </span>
+          )}
+        </div>
       )}
 
       <BidForm product={product} phase={phase} canBid={canBid} onBid={onBid} />
