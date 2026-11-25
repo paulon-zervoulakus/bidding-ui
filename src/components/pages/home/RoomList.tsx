@@ -48,8 +48,7 @@ const RoomList: React.FC<RoomListProps> = (RoomListProps) => {
 		}
 	};
 
-
-	const canCreate = user?.role === 3 || user?.role === 4;
+	const canCreate = user?.role === 4 || user?.role === 8;
 
 	return (
 		<div>
@@ -75,7 +74,7 @@ const RoomList: React.FC<RoomListProps> = (RoomListProps) => {
 						{ RoomListProps?.rooms.map((room) => {
 							// TODO: Replace with actual membership check from API
 							const isMember = room.members == null ? false : room.members.some(member => member.userId === currentUserId);
-							const managedRoom = canCreate && room.hostId === currentUserId;
+							const managedRoom = room.hostId === currentUserId;
 
 							return (
 								<RoomCard
