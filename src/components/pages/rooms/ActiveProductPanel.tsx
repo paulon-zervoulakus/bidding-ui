@@ -17,8 +17,8 @@ export const ActiveProductPanel: React.FC<{
   const startMs = parseUtc(product.startingBidTime).getTime();
   const endMs = parseUtc(product.endBidTime).getTime();
   const remainingMs = (phase === "live" ? endMs : startMs) - now;
-  const isUrgent = phase === "live" && remainingMs <= 30_000;
-  const isCritical = phase === "live" && remainingMs <= 30_000;
+  const isUrgent = phase === "live" && remainingMs <= tc.urgent * 1000;
+  const isCritical = phase === "live" && remainingMs <= tc.critical * 1000;
 
   // console.log(isUrgent, isCritical, remainingMs, tc.urgent * 1000, tc.critical * 1000);
 
