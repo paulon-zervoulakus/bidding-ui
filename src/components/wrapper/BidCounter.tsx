@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { parseUtc, formatRemaining } from "../../helper/isoString";
+import { bidThresholdCountdown as ct } from "../../helper/auctionRoom";
 
 
 
@@ -40,10 +41,10 @@ export const BidCountdown: React.FC<{ start: string; end: string }> = ({ start, 
 	}
 
 	if (now < endMs) {
-		const remaining = endMs - now;
-		const urgent = remaining < 60 * 1000;
+		const remaining = (endMs - now);
+		const urgent = (remaining / 1000) <= ct.urgent ? "urgent" : (remaining / 1000) > ct.urgent && (remaining / 1000) <= ct.critical ? "critical" : "live";
 		return (
-			<p className={`mt-1 text-sm font-semibold ${urgent ? "text-red-600" : "text-green-700"}`}>
+			<p className={`mt-1 text-sm font-semibold ${urgent === "urgent" ? "text-red-600" : urgent === "critical" ? "text-yellow-600" : "text-green-700"}`}>
 				Ends in <span className="font-mono tabular-nums">{formatRemaining(remaining)}</span>
 			</p>
 		);

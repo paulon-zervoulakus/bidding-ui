@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AuctionBidDTO, RoomProductDTO } from "../../../dto/auctionRoom";
-import { formatPrice, getPhase, productTitle } from "../../../helper/auctionRoom";
+import { bidThresholdCountdown as tc, formatPrice, getPhase, productTitle } from "../../../helper/auctionRoom";
 import { formatRemaining, parseUtc } from "../../../helper/isoString";
 import { FlashWrap } from "../../wrapper/FlashWrap";
 import { BidForm } from "./BidForm";
@@ -19,6 +19,8 @@ export const ActiveProductPanel: React.FC<{
   const remainingMs = (phase === "live" ? endMs : startMs) - now;
   const isUrgent = phase === "live" && remainingMs <= 30_000;
   const isCritical = phase === "live" && remainingMs <= 30_000;
+
+  // console.log(isUrgent, isCritical, remainingMs, tc.urgent * 1000, tc.critical * 1000);
 
   const INITIAL_BIDS = 5;
   const MAX_BIDS = 20;
