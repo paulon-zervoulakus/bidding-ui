@@ -103,7 +103,14 @@ const AuctionRoomPage: React.FC = () => {
                   ...prev,
                   roomProducts: prev.roomProducts?.map((rp) => {
                     const hit = dto.roomProductId === rp.productId;
-                    return hit ? { ...rp, lastBidPrice: dto.amount } : rp;
+                    if (!hit) return rp;
+                    return {
+                      ...rp,
+                      lastBidPrice: dto.amount,
+                      ...(dto.extended && dto.endBidTime
+                        ? { endBidTime: dto.endBidTime, endBidTimeExtended: true }
+                        : {}),
+                    };
                   }),
                 }
               : prev

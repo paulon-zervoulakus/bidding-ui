@@ -33,6 +33,7 @@ export interface RoomProductDTO
     minimumBidIncrement: number;
     startingBidTime: string;
     endBidTime: string;
+    endBidTimeExtended?: boolean;
     productDetails: ProductDTO;
     bidHistory?: BidHistoryDTO[];
 }
@@ -96,6 +97,8 @@ export interface AuctionBidDTO
   amount: number;
   bidder: string;
   timestamp?: string;
+  extended?: boolean;
+  endBidTime?: string;
 }
 export interface IncomingAuctionBidDTO extends AuctionBidDTO
 {
