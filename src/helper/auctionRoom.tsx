@@ -35,3 +35,8 @@ export const extractHubExceptionMessage = (message: string): string => {
 
   return message.substring(index + prefix.length).trim();
 };
+
+export const bidThresholdCountdown = {
+  critical: 30,
+  urgent: 15
+}
