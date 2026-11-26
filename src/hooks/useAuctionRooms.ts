@@ -9,21 +9,21 @@ import { ProductDTO } from "../dto/product";
  * @param onGetManageAuctonRooms
  * @returns
  */
-// export const GetManageAuctionRooms = async (
-// 	onGetAuctionRooms?: (data: AuctionRoomDTO[]) => void
-// ): Promise<AuctionRoomDTO[]> => {
-// 		const res = await fetch(`${__API_URL__}/api/AuctionRooms/get-manage-rooms`, {
-// 			method: "GET",
-// 			credentials: "include",
-// 		});
+export const GetManageAuctionRooms = async (
+	onGetAuctionRooms?: (data: AuctionRoomDTO[]) => void
+): Promise<AuctionRoomDTO[]> => {
+		const res = await fetch(`${__API_URL__}/api/AuctionRooms/get-manage-rooms`, {
+			method: "GET",
+			credentials: "include",
+		});
 
-// 		if (!res.ok) return [];
+		if (!res.ok) return [];
 
-// 		const data: AuctionRoomListDTO = await res.json();
+		const data: AuctionRoomListDTO = await res.json();
 
-// 		onGetAuctionRooms?.(data.rooms);
-// 		return data.rooms ?? [];
-// };
+		onGetAuctionRooms?.(data.rooms);
+		return data.rooms ?? [];
+};
 
 // export const GetPublicAuctionRooms = async (
 // 	onGetAuctionRooms?: (data: AuctionRoomDTO[]) => void
