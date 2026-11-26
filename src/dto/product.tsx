@@ -6,7 +6,7 @@ export interface ProductDTO {
 	price: string;
 	quantity: string;
 	sku: string;
-	condition: ConditionEnum;
+	productCondition: ConditionEnum;
 	productCategory?: CategoryDTO[];
 	seller?: SellerDTO;
 }
