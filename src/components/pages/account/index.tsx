@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ProfileForm from "./profile";
 import { ProductPage } from "../products/ProductPage";
+import { AuctionRoomTab } from "./AuctionRoomTab";
 
 const AccountIndex: React.FC = () => {
     const [activeTab, setActiveTab] = useState("mybio");
@@ -56,8 +57,7 @@ const AccountIndex: React.FC = () => {
 								<ProductPage />
 							</div>
 							<div id="auction" className={`${activeTab === 'auction' ? 'active':'hidden'}`}>
-								<h2 className="text-2xl font-bold mb-4">Auction Settings</h2>
-								<p>This section will display details related to the selected accordion item.</p>
+								<AuctionRoomTab />
 							</div>
 						</div>
 					</div>
